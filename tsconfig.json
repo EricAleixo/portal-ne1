@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "app/_types/Post.ts", "app/_types/Auth.ts"  ],
   "exclude": ["node_modules"]
 }

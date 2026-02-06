@@ -1,1 +1,104 @@
 @import "tailwindcss";
+
+button {
+  cursor: pointer;
+}
+
+/* =========================
+   Tipografia base (reset do Tailwind)
+   ========================= */
+
+h1 {
+  font-size: 2.25rem; /* 36px */
+  line-height: 2.5rem;
+  font-weight: 800;
+  margin: 1.5rem 0 1rem;
+}
+
+h2 {
+  font-size: 1.875rem; /* 30px */
+  line-height: 2.25rem;
+  font-weight: 700;
+  margin: 1.25rem 0 0.75rem;
+}
+
+h3 {
+  font-size: 1.5rem; /* 24px */
+  line-height: 2rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+}
+
+p {
+  margin: 0.75rem 0;
+  line-height: 1.75;
+}
+
+ul,
+ol {
+  margin: 0.75rem 0 0.75rem 1.5rem;
+}
+
+li {
+  margin: 0.25rem 0;
+}
+
+
+pre,
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+}
+
+/* =========================
+   Editor Markdown
+   ========================= */
+
+.rc-md-editor {
+  border-radius: 0.75rem !important;
+}
+
+.rc-md-editor .editor-container {
+  background: rgba(255, 255, 255, 0.5) !important;
+}
+
+.rc-md-editor .custom-html-style {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* =========================
+   Preview Markdown (prose)
+   ========================= */
+
+.prose {
+  color: #374151;
+}
+
+.prose h1 {
+  color: #283583;
+}
+
+.prose h2 {
+  color: #3d4ba8;
+}
+
+.prose a {
+  color: #5fad56;
+}
+
+.prose strong {
+  color: #1f2937;
+}
+
+.prose code {
+  background: rgba(40, 53, 131, 0.1);
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+.prose pre {
+  background: rgba(40, 53, 131, 0.05);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
