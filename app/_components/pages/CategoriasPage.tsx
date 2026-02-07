@@ -12,7 +12,7 @@ export const CategoriasPage = async () => {
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-purple-50/30 to-pink-50/40">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/60 shadow-sm sticky top-0 z-50">
+      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/60 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
