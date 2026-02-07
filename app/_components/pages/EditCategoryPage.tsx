@@ -1,19 +1,13 @@
-import { Container } from "../layouts/Container";
+import { categoryService } from "@/app/_services/categorie.service";
 import { PageHeader } from "../molecules/PageHeader";
 import { CategoryForm } from "../organisms/CategoryForm";
+import { notFound } from "next/navigation";
 
-export const EditCategoryPage = ({id}: {id: string}) => {
+export const EditCategoryPage = async ({id}: {id: string}) => {
       
       // Buscar categoria
-      // const category = await categoryService.findById(parseInt(id));
-      // if (!category) notFound();
-    
-      // Dados mockados para exemplo
-      const category = {
-        id: parseInt(id),
-        name: "Tecnologia",
-        color: "#3B82F6"
-      };
+      const category = await categoryService.getById(parseInt(id));
+      if (!category) notFound();
     
       return (
         <>

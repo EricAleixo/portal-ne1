@@ -21,7 +21,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     .join(" ");
 
   // Buscar categoria
-  const category = await categoryService.getByName(categoryName);
+  const category = await categoryService.getBySlug(categoryName);
 
   if (!category) {
     notFound();

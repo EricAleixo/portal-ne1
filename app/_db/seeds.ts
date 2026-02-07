@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import slugify from "slugify";
 import { db } from ".";
 import { users, categories, posts } from "./schema";
 import { eq } from "drizzle-orm";
@@ -28,33 +29,39 @@ const seed = async () => {
     admin = createdAdmin;
     console.log("Admin criado 👑");
   } else {
-    // se já existir, atualiza a senha e o role
     await db
       .update(users)
       .set({
-        name: "admin",
+        name: "Admin Aleixo",
         passwordHash,
-        role: "ADMIN"
+        role: "ADMIN",
       })
       .where(eq(users.id, admin.id));
 
-    console.log("Admin já existia — senha atualizada 🔐");
+    console.log("Admin já existia — atualizado 🔐");
   }
 
   /* =========================
-   * 2️⃣ CATEGORIA
+   * 2️⃣ CATEGORIA (COM SLUG)
    * ========================= */
+  const categoryName = "Tecnologia";
+  const categorySlug = slugify(categoryName, {
+    lower: true,
+    strict: true,
+  });
+
   let [category] = await db
     .select()
     .from(categories)
-    .where(eq(categories.name, "Tecnologia"))
+    .where(eq(categories.slug, categorySlug))
     .limit(1);
 
   if (!category) {
     const [createdCategory] = await db
       .insert(categories)
       .values({
-        name: "Tecnologia",
+        name: categoryName,
+        slug: categorySlug,
         color: "#6366F1",
       })
       .returning();
@@ -62,7 +69,15 @@ const seed = async () => {
     category = createdCategory;
     console.log("Categoria criada 🏷️");
   } else {
-    console.log("Categoria já existe 🏷️");
+    // garante que categorias antigas recebam slug
+    await db
+      .update(categories)
+      .set({
+        slug: categorySlug,
+      })
+      .where(eq(categories.id, category.id));
+
+    console.log("Categoria já existia — slug garantido 🏷️");
   }
 
   /* =========================

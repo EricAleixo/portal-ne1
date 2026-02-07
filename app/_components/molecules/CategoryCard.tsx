@@ -3,6 +3,8 @@
 import { Tag, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
+import { categoryService } from '@/services/category.service';
+import { useRouter } from 'next/navigation';
 
 interface Category {
   id: number;
@@ -12,10 +14,10 @@ interface Category {
 
 interface CategoryCardProps {
   category: Category;
-  onDelete: (formData: FormData) => Promise<void>;
 }
 
-export const CategoryCard = ({ category, onDelete }: CategoryCardProps) => {
+export const CategoryCard = ({ category }: CategoryCardProps) => {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -25,11 +27,12 @@ export const CategoryCard = ({ category, onDelete }: CategoryCardProps) => {
     }
 
     setIsDeleting(true);
-    const formData = new FormData();
-    formData.append('categoryId', category.id.toString());
     
     try {
-      await onDelete(formData);
+      await categoryService.delete(category.id);
+
+      router.refresh()
+
     } catch (error) {
       alert('Erro ao excluir categoria');
       setIsDeleting(false);

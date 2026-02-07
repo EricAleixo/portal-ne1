@@ -35,6 +35,7 @@ export class UserService {
     }
 
     async findById(id: number) {
+        console.log(id)
         const user = await userRepository.findById(id);
         if (!user) {
             throw new Error("USER NOT FOUND");
@@ -42,6 +43,7 @@ export class UserService {
         return {
             id: user.id,
             name: user.name,
+            active: user.actived,
             role: user.role
         };
     }
@@ -117,6 +119,7 @@ export class UserService {
         return {
             id: user.id,
             name: user.name,
+            active: user.actived,
             role: user.role
         };
     }

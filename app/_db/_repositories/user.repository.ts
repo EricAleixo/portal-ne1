@@ -20,10 +20,7 @@ export const userRepository = {
 
     findById: async (id: number) => {
         return await db.query.users.findFirst({
-            where: (users, {eq, and}) => and(
-                eq(users.id, id),
-                eq(users.role, "JOURNALIST")
-            )
+            where: eq(users.id, id)
         })
     },
 

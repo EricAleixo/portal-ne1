@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
 
     const rawCategoryId = formData.get("categoryId");
-    const publishedRaw = formData.get("published");
+    const publishedRaw = formData.get("published");    
 
     const data = createPostSchema.parse({
       title: formData.get("title"),
@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
     });
 
 
+
     const post = await postService.create(
       data,
       session.user.id,
@@ -63,6 +64,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error: any) {
+    console.log(error.message)
     return NextResponse.json(
       { success: false, message: error.message },
       { status: 400 }

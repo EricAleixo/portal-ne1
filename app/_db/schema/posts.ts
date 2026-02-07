@@ -32,7 +32,7 @@ export const posts = pgTable("posts", {
 
   categoryId: integer("category_id")
     .notNull()
-    .references(() => categories.id, { onDelete: "restrict" }),
+    .references(() => categories.id, { onDelete: "cascade" }),
 
   published: boolean("published").notNull().default(false),
 

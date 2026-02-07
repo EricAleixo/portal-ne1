@@ -1,6 +1,6 @@
 import { PostsTable } from "../organisms/PostsTable";
 import { JournalistLayout } from "../layouts/JornalistLayout";
-import { Post, PostWithRelations } from "@/app/_types/Post";
+import {  PostWithRelations } from "@/app/_types/Post";
 import { postService } from "@/app/_services/post.service";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";

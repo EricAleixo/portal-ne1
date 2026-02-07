@@ -8,18 +8,6 @@ import { CategoriasList } from "../organisms/CategoriasList";
 export const CategoriasPage = async () => {
   const categories = await categoryService.getAll();
 
-  async function deleteCategory(formData: FormData) {
-    'use server';
-    const categoryId = formData.get('categoryId');
-    if (!categoryId) return;
-    
-    try {
-      revalidatePath('/category');
-    } catch (error) {
-      console.error('Erro ao deletar categoria:', error);
-      throw error;
-    }
-  }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-purple-50/30 to-pink-50/40">
@@ -69,7 +57,7 @@ export const CategoriasPage = async () => {
         </div>
 
         {/* Categories List */}
-        <CategoriasList categories={categories} onDelete={deleteCategory} />
+        <CategoriasList categories={categories} />
       </main>
     </div>
   );

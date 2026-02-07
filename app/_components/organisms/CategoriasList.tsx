@@ -14,10 +14,9 @@ interface Category {
 
 interface CategoriasListProps {
   categories: Category[];
-  onDelete: (formData: FormData) => Promise<void>;
 }
 
-export const CategoriasList = ({ categories, onDelete }: CategoriasListProps) => {
+export const CategoriasList = ({ categories }: CategoriasListProps) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredCategories = categories.filter(category =>
@@ -57,7 +56,7 @@ export const CategoriasList = ({ categories, onDelete }: CategoriasListProps) =>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredCategories.map((category) => (
-            <CategoryCard key={category.id} category={category} onDelete={onDelete} />
+            <CategoryCard key={category.id} category={category} />
           ))}
         </div>
       )}

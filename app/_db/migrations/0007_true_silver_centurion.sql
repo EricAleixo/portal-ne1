@@ -1,1 +1,0 @@
-ALTER TABLE "categories" DROP CONSTRAINT "categories_color_unique";
