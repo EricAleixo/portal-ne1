@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Calendar, Eye, ArrowRight, Clock, Newspaper } from 'lucide-react';
 import { PostWithRelations } from '@/app/_types/Post';
 import { categoryService } from '@/app/_services/categorie.service';
+import { Header } from '../organisms/Header';
 
 export const HomePage = async () => {
   const allPosts = await postService.findAllPublished(50, 0);
@@ -39,9 +40,9 @@ export const HomePage = async () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
       {/* Header/Navbar */}
-      <Header allCategories={allCategories} />
+      <Header />
 
       {/* Hero Section - Destaque Principal */}
       {featuredPost && <HeroSection post={featuredPost} />}
@@ -54,7 +55,7 @@ export const HomePage = async () => {
           {/* Últimas Notícias - 2/3 */}
           <section className="lg:col-span-2 space-y-8">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-2 bg-gradient-to-b from-[#C4161C] to-[#e01b22] rounded-full" />
+              <div className="h-12 w-2 bg-linear-to-b from-[#C4161C] to-[#e01b22] rounded-full" />
               <h2 className="text-4xl font-black text-gray-900 uppercase tracking-tight">
                 Últimas Notícias
               </h2>
@@ -76,7 +77,7 @@ export const HomePage = async () => {
 
           {/* Em Alta - 1/3 - Sidebar Estilo Editorial */}
           <aside className="space-y-6">
-            <div className="bg-gradient-to-br from-[#C4161C] via-[#e01b22] to-[#C4161C] p-6 rounded-2xl shadow-2xl relative overflow-hidden">
+            <div className="bg-linear-to-br from-[#C4161C] via-[#e01b22] to-[#C4161C] p-6 rounded-2xl shadow-2xl relative overflow-hidden">
               {/* Efeito de brilho */}
               <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
               
@@ -101,7 +102,7 @@ export const HomePage = async () => {
             </div>
 
             {/* Banner Newsletter - Modernizado */}
-            <div className="bg-gradient-to-br from-[#283583] via-[#3d4ba8] to-[#283583] p-8 rounded-2xl shadow-2xl text-white relative overflow-hidden">
+            <div className="bg-linear-to-br from-[#283583] via-[#3d4ba8] to-[#283583] p-8 rounded-2xl shadow-2xl text-white relative overflow-hidden">
               <div className="absolute top-0 left-0 w-32 h-32 bg-[#5FAD56]/20 rounded-full blur-2xl" />
               <div className="absolute bottom-0 right-0 w-32 h-32 bg-[#F9C74F]/20 rounded-full blur-2xl" />
               
@@ -152,11 +153,13 @@ export const HomePage = async () => {
                       href={`/posts/${category.posts[0].slug}`}
                       className="group md:row-span-2 relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500"
                     >
-                      <div className="relative h-full min-h-[400px]">
+                      <div className="relative h-full min-h-100">
                         {category.posts[0].photoUrl ? (
-                          <img
+                          <Image
                             src={category.posts[0].photoUrl}
                             alt={category.posts[0].title}
+                            width={1200}
+                            height={1200}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                           />
                         ) : (
@@ -165,7 +168,7 @@ export const HomePage = async () => {
                             style={{ background: `linear-gradient(135deg, ${category.color}40, ${category.color}80)` }}
                           />
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent" />
+                        <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/50 to-transparent" />
                         
                         <div className="absolute bottom-0 left-0 right-0 p-8">
                           <span 
@@ -213,69 +216,6 @@ export const HomePage = async () => {
   );
 }
 
-function Header({ allCategories }: { allCategories: Array<{ id: number; name: string; color: string }> }) {
-  return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b-4 border-[#C4161C] shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="flex-shrink-0 transform hover:scale-105 transition-transform">
-            <Image
-              src="/images/logo.png"
-              alt="NE1 Notícias"
-              width={160}
-              height={50}
-              className="h-12 w-auto"
-              priority
-            />
-          </Link>
-          
-          <nav className="hidden md:flex items-center gap-8">
-            <Link 
-              href="/" 
-              className="text-gray-900 hover:text-[#C4161C] font-black uppercase text-sm tracking-wide transition-all duration-300 relative group"
-            >
-              <span>Início</span>
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#C4161C] group-hover:w-full transition-all duration-300" />
-            </Link>
-            
-            {allCategories.slice(0, 5).map((category) => (
-              <Link 
-                key={category.id}
-                href={`/categorias/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
-                className="text-gray-900 font-black uppercase text-sm tracking-wide transition-all duration-300 relative group"
-                style={{ 
-                  '--hover-color': category.color 
-                } as React.CSSProperties}
-              >
-                <span className="group-hover:opacity-80">{category.name}</span>
-                <span 
-                  className="absolute bottom-0 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300"
-                  style={{ backgroundColor: category.color }}
-                />
-              </Link>
-            ))}
-            
-            <Link 
-              href="/sobre" 
-              className="text-gray-900 hover:text-[#C4161C] font-black uppercase text-sm tracking-wide transition-all duration-300 relative group"
-            >
-              <span>Sobre</span>
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#C4161C] group-hover:w-full transition-all duration-300" />
-            </Link>
-          </nav>
-
-          <Link
-            href="/journalist/"
-            className="px-6 py-3 bg-gradient-to-r from-[#283583] to-[#3d4ba8] hover:from-[#1e2660] hover:to-[#283583] text-white font-black uppercase text-xs tracking-wide rounded-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
-          >
-            Área do Jornalista
-          </Link>
-        </div>
-      </div>
-    </header>
-  );
-}
-
 function HeroSection({ post }: { post: PostWithRelations }) {
   return (
     <section className="relative h-[75vh] overflow-hidden">
@@ -290,12 +230,12 @@ function HeroSection({ post }: { post: PostWithRelations }) {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-[#C4161C] via-[#283583] to-[#5FAD56]" />
+          <div className="w-full h-full bg-linear-to-br from-[#C4161C] via-[#283583] to-[#5FAD56]" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black via-black/60 to-transparent" />
         
         {/* Efeito de overlay moderno */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#C4161C]/20 via-transparent to-[#283583]/20" />
+        <div className="absolute inset-0 bg-linear-to-br from-[#C4161C]/20 via-transparent to-[#283583]/20" />
       </div>
 
       {/* Content */}
@@ -344,7 +284,7 @@ function HeroSection({ post }: { post: PostWithRelations }) {
 
           <Link
             href={`/posts/${post.slug}`}
-            className="inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-[#C4161C] to-[#e01b22] hover:from-[#a01318] hover:to-[#C4161C] text-white font-black uppercase tracking-wide text-lg transition-all duration-300 hover:shadow-2xl hover:shadow-red-500/50 hover:scale-105 group rounded-xl"
+            className="inline-flex items-center gap-3 px-10 py-5 bg-linear-to-r from-[#C4161C] to-[#e01b22] hover:from-[#a01318] hover:to-[#C4161C] text-white font-black uppercase tracking-wide text-lg transition-all duration-300 hover:shadow-2xl hover:shadow-red-500/50 hover:scale-105 group rounded-xl"
           >
             <span>Leia Agora</span>
             <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
@@ -372,7 +312,7 @@ function PostCard({ post }: { post: PostWithRelations }) {
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+          <div className="w-full h-full bg-linear-to-br from-gray-200 to-gray-300 flex items-center justify-center">
             <Newspaper className="w-20 h-20 text-gray-400" />
           </div>
         )}
@@ -420,8 +360,8 @@ function TrendingCard({ post, rank }: { post: PostWithRelations; rank: number })
       className="group flex gap-3 p-4 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 rounded-xl border border-white/20"
     >
       {/* Rank */}
-      <div className="flex-shrink-0">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#F9C74F] to-[#f4a93f] flex items-center justify-center shadow-lg border-2 border-white/50">
+      <div className="shrink-0">
+        <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[#F9C74F] to-[#f4a93f] flex items-center justify-center shadow-lg border-2 border-white/50">
           <span className="text-2xl font-black text-[#283583]">{rank}</span>
         </div>
       </div>
@@ -449,7 +389,7 @@ function CompactCard({ post, color }: { post: PostWithRelations; color: string }
       className="group flex gap-4 bg-white rounded-xl p-4 hover:shadow-xl transition-all duration-300 border-l-4 hover:scale-[1.02]"
       style={{ borderColor: color }}
     >
-      <div className="relative w-28 h-28 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+      <div className="relative w-28 h-28 shrink-0 rounded-lg overflow-hidden bg-gray-100">
         {post.photoUrl ? (
           <img
             src={post.photoUrl}
@@ -508,7 +448,7 @@ function VerticalCard({ post, color }: { post: PostWithRelations; color: string 
 
 function Footer({ allCategories }: { allCategories: Array<{ id: number; name: string; color: string }> }) {
   return (
-    <footer className="bg-gradient-to-br from-[#283583] via-[#1e2660] to-[#283583] text-white mt-20 relative overflow-hidden">
+    <footer className="bg-linear-to-br from-[#283583] via-[#1e2660] to-[#283583] text-white mt-20 relative overflow-hidden">
       {/* Efeitos decorativos */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-[#C4161C]/10 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-0 w-64 h-64 bg-[#5FAD56]/10 rounded-full blur-3xl" />
@@ -560,12 +500,12 @@ function Footer({ allCategories }: { allCategories: Array<{ id: number; name: st
 
 function EmptyState({ allCategories }: { allCategories: Array<{ id: number; name: string; color: string }> }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <Header allCategories={allCategories} />
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
+      <Header/>
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
         <div className="bg-white rounded-3xl shadow-2xl p-12 lg:p-16 border-t-8 border-[#C4161C]">
-          <div className="w-32 h-32 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-[#C4161C]/20 via-[#283583]/20 to-[#5FAD56]/20 flex items-center justify-center">
+          <div className="w-32 h-32 mx-auto mb-8 rounded-2xl bg-linear-to-br from-[#C4161C]/20 via-[#283583]/20 to-[#5FAD56]/20 flex items-center justify-center">
             <Newspaper className="w-16 h-16 text-[#283583]" />
           </div>
           
@@ -580,7 +520,7 @@ function EmptyState({ allCategories }: { allCategories: Array<{ id: number; name
 
           <Link
             href="/journalist/posts"
-            className="inline-block px-10 py-5 bg-gradient-to-r from-[#283583] to-[#3d4ba8] hover:from-[#1e2660] hover:to-[#283583] text-white font-black uppercase tracking-wide transition-all duration-300 hover:shadow-xl hover:scale-105 rounded-xl"
+            className="inline-block px-10 py-5 bg-linear-to-r from-[#283583] to-[#3d4ba8] hover:from-[#1e2660] hover:to-[#283583] text-white font-black uppercase tracking-wide transition-all duration-300 hover:shadow-xl hover:scale-105 rounded-xl"
           >
             Área do Jornalista
           </Link>

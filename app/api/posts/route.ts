@@ -34,23 +34,41 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
 
     const rawCategoryId = formData.get("categoryId");
-    const publishedRaw = formData.get("published");    
+    const publishedRaw = formData.get("published");
+    
+    const photoFileRaw = formData.get("photoFile")
+    
+    let data;
 
-    const data = createPostSchema.parse({
-      title: formData.get("title"),
-      description: formData.get("description"),
-      content: formData.get("content"),
-      tags: JSON.parse(String(formData.get("tags") || "[]")),
-      categoryId: rawCategoryId ? Number(rawCategoryId) : undefined,
-      published: publishedRaw === "true",
-      photoFile: formData.get("photoFile"),
-      photoUrl: formData.get("photoUrl")
-    });
+    if(photoFileRaw){
+      data = createPostSchema.parse({
+        title: formData.get("title"),
+        description: formData.get("description"),
+        content: formData.get("content"),
+        tags: JSON.parse(String(formData.get("tags") || "[]")),
+        categoryId: rawCategoryId ? Number(rawCategoryId) : undefined,
+        published: publishedRaw === "true",
+        photoFile: formData.get("photoFile"),
+        //photoUrl: formData.get("photoUrl")
+      });
+    }
+    else{
+      data = createPostSchema.parse({
+        title: formData.get("title"),
+        description: formData.get("description"),
+        content: formData.get("content"),
+        tags: JSON.parse(String(formData.get("tags") || "[]")),
+        categoryId: rawCategoryId ? Number(rawCategoryId) : undefined,
+        published: publishedRaw === "true",
+        photoFile: formData.get("photoFile"),
+        //photoUrl: formData.get("photoUrl")
+      });
+    }
+
 
     const { password } = passwordConfirmationSchema.parse({
       password: formData.get("password"),
     });
-
 
 
     const post = await postService.create(

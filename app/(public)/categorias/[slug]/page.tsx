@@ -15,13 +15,9 @@ interface CategoryPageProps {
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const {slug} = await(params); 
-  const categoryName = slug
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
 
   // Buscar categoria
-  const category = await categoryService.getBySlug(categoryName);
+  const category = await categoryService.getBySlug(slug);
 
   if (!category) {
     notFound();

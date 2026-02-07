@@ -41,7 +41,7 @@ export const Header = async ({
               return (
                 <Link
                   key={category.id}
-                  href={`/categorias/${category.name.toLowerCase().replace(/\s+/g, "-")}`} // ✅ CORRETO
+                  href={`/categorias/${category.slug}`}
                   className={`font-black uppercase text-sm tracking-wide transition-all duration-300 relative group ${
                     isActive ? "text-opacity-100" : "text-gray-900"
                   }`}
@@ -60,13 +60,6 @@ export const Header = async ({
               );
             })}
 
-            <Link
-              href="/sobre"
-              className="text-gray-900 hover:text-[#C4161C] font-black uppercase text-sm tracking-wide transition-all duration-300 relative group"
-            >
-              <span>Sobre</span>
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#C4161C] group-hover:w-full transition-all duration-300" />
-            </Link>
           </nav>
 
           <Link

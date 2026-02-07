@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { ReactNode } from "react"
 import { Sidebar } from "../organisms/SideBar";
-import { JournalismHeader } from "../organisms/JornalismHeader";
+import { JournalismHeader } from "../organisms/JournalismHeader";
 import { getSessionOrThrow } from "@/app/api/_utils/session";
 
 export const JournalistLayout = async ({children} : {children: ReactNode}) => {

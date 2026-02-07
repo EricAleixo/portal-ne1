@@ -37,18 +37,19 @@ export class PostService {
   /**
    * Salvar arquivo de imagem
    */
-  private async savePhotoFile(file: any): Promise<string> {
-    const uploadDir = path.join(process.cwd(), "public", "uploads", "posts");
-
-    await fs.mkdir(uploadDir, { recursive: true });
-
-    const ext = path.extname(file.originalname);
-    const filename = `${uuidv4()}${ext}`;
-    const filepath = path.join(uploadDir, filename);
-
-    await fs.writeFile(filepath, file.buffer);
-
-    return `/uploads/posts/${filename}`;
+  private async savePhotoFile(file: File): Promise<string> {
+      const uploadDir = path.join(process.cwd(), "public", "uploads", "posts");
+      await fs.mkdir(uploadDir, { recursive: true });
+      
+      const ext = path.extname(file.name);
+      const filename = `${uuidv4()}${ext}`;
+      const filepath = path.join(uploadDir, filename);
+      
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      
+      await fs.writeFile(filepath, buffer);
+      return `/uploads/posts/${filename}`;
   }
 
   /**

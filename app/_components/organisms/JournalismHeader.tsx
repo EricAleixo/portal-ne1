@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { Badge } from "../atoms/Badge";
 import Link from "next/link";
-import { LogOut, User, Settings } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
 
@@ -105,12 +105,13 @@ export const JournalismHeader = ({ user }: {user: {name: string, avatarUrl: stri
               {/* Menu Items */}
               <div className="py-2">
                 {/* Profile Option (opcional) */}
-                <button
+                <Link
+                  href={"/journalist/profile"}
                   className="w-full flex items-center gap-3 px-5 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                 >
                   <User className="w-5 h-5 text-gray-500 font-semibold" />
                   <span className="font-semibold">Meu Perfil</span>
-                </button>
+                </Link>
 
 
                 {/* Divider */}

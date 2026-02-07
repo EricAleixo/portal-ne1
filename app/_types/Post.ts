@@ -6,7 +6,7 @@ export const createPostSchema = z.object({
   description: z.string().min(1, "Descrição é obrigatória").max(500, "Descrição muito longa"),
   content: z.string().min(1, "Conteúdo é obrigatório"),
   photoFile: z.any().optional(),
-  photoUrl: z.string().url().optional(),
+  photoUrl: z.string().optional(),
   tags: z.array(z.string()).min(1, "Adicione pelo menos uma tag").max(10, "Máximo de 10 tags"),
   categoryId: z.number().int().positive("Categoria é obrigatória"),
   published: z.boolean().default(false),

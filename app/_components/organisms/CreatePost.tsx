@@ -564,10 +564,12 @@ export const CreatePost: React.FC<CreatePostProps> = ({
 
             {photoPreview ? (
               <div className="relative rounded-xl overflow-hidden border border-gray-200/60 bg-white/50 backdrop-blur-sm">
-                <img
+                <Image
                   src={photoPreview}
                   alt="Preview"
                   className="w-full h-64 object-cover"
+                  width={256}
+                  height={256}
                   onError={() => {
                     setErrors((prev) => ({
                       ...prev,
