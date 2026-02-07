@@ -5,11 +5,19 @@ import { updatePostSchema, passwordConfirmationSchema } from "@/app/_types/Post"
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { slug: string } }
 ) {
   try {
     const session = await getSessionOrThrow();
-    const postId = Number(params.id);
+    const { slug } = params;
+
+    if (!slug) {
+      return NextResponse.json(
+        { success: false, message: "Slug inválido" },
+        { status: 400 }
+      );
+    }
+
     const formData = await req.formData();
 
     const data = updatePostSchema.parse({
@@ -32,8 +40,8 @@ export async function PUT(
       password: formData.get("password"),
     });
 
-    const post = await postService.update(
-      postId,
+    const post = await postService.updateBySlug(
+      slug,
       data,
       session.user.id,
       password
@@ -47,19 +55,27 @@ export async function PUT(
     );
   }
 }
+
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { slug: string } }
 ) {
   try {
     const session = await getSessionOrThrow();
-    const postId = Number(params.id);
+    const { slug } = params;
+
+    if (!slug) {
+      return NextResponse.json(
+        { success: false, message: "Slug inválido" },
+        { status: 400 }
+      );
+    }
 
     const body = await req.json();
     const { password } = passwordConfirmationSchema.parse(body);
 
-    await postService.delete(
-      postId,
+    await postService.deleteBySlug(
+      slug,
       session.user.id,
       password
     );

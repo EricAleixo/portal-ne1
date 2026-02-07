@@ -1,7 +1,8 @@
 import React from "react";
 import { FileText, Eye, Edit2, Trash2, Plus } from "lucide-react";
-import { Post, PostWithRelations } from "@/app/_types/Post";
+import { PostWithRelations } from "@/app/_types/Post";
 import Link from "next/link";
+import { DeletePostButton } from "../molecules/DeletePostButton";
 
 interface PostsTableProps {
   posts?: PostWithRelations[];
@@ -195,13 +196,7 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
                     >
                       <Edit2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
                     </button>
-                    <button
-                      className="p-2 bg-white/50 backdrop-blur-sm border border-gray-200/60 rounded-lg hover:bg-linear-to-r hover:from-red-50 hover:to-pink-50 hover:border-[#C4161C]/30 hover:text-[#C4161C] text-gray-600 transition-all duration-200 hover:shadow-md group"
-                      title="Deletar"
-                      aria-label={`Deletar ${post.title}`}
-                    >
-                      <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                    </button>
+                    <DeletePostButton postId={post.id} postTitle={post.title}></DeletePostButton>
                   </div>
                 </td>
               </tr>

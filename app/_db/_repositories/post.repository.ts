@@ -1,6 +1,6 @@
 import { db } from "..";
 import { posts, users, categories } from "../schema";
-import { eq, and, desc, ilike, or } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import {
   CreatePostDTO,
   UpdatePostDTO,
@@ -9,10 +9,13 @@ import {
 } from "@/app/_types/Post";
 
 export class PostRepository {
+  /* =========================
+   * CREATE
+   * ========================= */
   async create(
     data: CreatePostDTO,
     authorId: number,
-    slug: string,
+    slug: string
   ): Promise<Post> {
     const values: any = {
       title: data.title,
@@ -30,21 +33,13 @@ export class PostRepository {
       values.photoUrl = data.photoUrl;
     }
 
-    if (data.published) {
-      values.published = true;
-      values.publishedAt = new Date();
-    }
-
-    try {
-      const [post] = await db.insert(posts).values(values).returning();
-      return post;
-    } catch (err) {
-      console.error("❌ ERRO AO INSERIR POST:", err);
-      throw err;
-    }
-
+    const [post] = await db.insert(posts).values(values).returning();
+    return post;
   }
 
+  /* =========================
+   * FIND
+   * ========================= */
   async findById(id: number): Promise<Post | undefined> {
     const [post] = await db
       .select()
@@ -55,8 +50,18 @@ export class PostRepository {
     return post;
   }
 
+  async findBySlug(slug: string): Promise<Post | undefined> {
+    const [post] = await db
+      .select()
+      .from(posts)
+      .where(eq(posts.slug, slug))
+      .limit(1);
+
+    return post;
+  }
+
   async findByIdWithRelations(
-    id: number,
+    id: number
   ): Promise<PostWithRelations | undefined> {
     const [post] = await db
       .select({
@@ -94,17 +99,13 @@ export class PostRepository {
     return post as PostWithRelations | undefined;
   }
 
-  async findBySlug(slug: string): Promise<Post | undefined> {
-    const [post] = await db
-      .select()
-      .from(posts)
-      .where(eq(posts.slug, slug))
-      .limit(1);
-
-    return post;
-  }
-
-  async findAllPublished(limit = 20, offset = 0): Promise<PostWithRelations[]> {
+  /* =========================
+   * LISTS
+   * ========================= */
+  async findAllPublished(
+    limit = 20,
+    offset = 0
+  ): Promise<PostWithRelations[]> {
     const result = await db
       .select({
         id: posts.id,
@@ -146,9 +147,11 @@ export class PostRepository {
   async findAll(
     limit = 20,
     offset = 0,
-    authorId?: number,
+    authorId?: number
   ): Promise<PostWithRelations[]> {
-    const conditions = authorId ? eq(posts.authorId, authorId) : undefined;
+    const condition = authorId
+      ? eq(posts.authorId, authorId)
+      : undefined;
 
     const result = await db
       .select({
@@ -180,7 +183,7 @@ export class PostRepository {
       .from(posts)
       .innerJoin(users, eq(posts.authorId, users.id))
       .innerJoin(categories, eq(posts.categoryId, categories.id))
-      .where(conditions)
+      .where(condition)
       .orderBy(desc(posts.createdAt))
       .limit(limit)
       .offset(offset);
@@ -188,95 +191,13 @@ export class PostRepository {
     return result as PostWithRelations[];
   }
 
-  async findByCategory(
-    categoryId: number,
-    limit = 20,
-    offset = 0,
-  ): Promise<PostWithRelations[]> {
-    const result = await db
-      .select({
-        id: posts.id,
-        title: posts.title,
-        slug: posts.slug,
-        description: posts.description,
-        content: posts.content,
-        photoUrl: posts.photoUrl,
-        tags: posts.tags,
-        views: posts.views,
-        authorId: posts.authorId,
-        categoryId: posts.categoryId,
-        published: posts.published,
-        createdAt: posts.createdAt,
-        updatedAt: posts.updatedAt,
-        publishedAt: posts.publishedAt,
-        author: {
-          id: users.id,
-          name: users.name,
-          role: users.role,
-        },
-        category: {
-          id: categories.id,
-          name: categories.name,
-          color: categories.color,
-        },
-      })
-      .from(posts)
-      .innerJoin(users, eq(posts.authorId, users.id))
-      .innerJoin(categories, eq(posts.categoryId, categories.id))
-      .where(and(eq(posts.categoryId, categoryId), eq(posts.published, true)))
-      .orderBy(desc(posts.publishedAt))
-      .limit(limit)
-      .offset(offset);
-
-    return result as PostWithRelations[];
-  }
-
-  async findByTag(
-    tag: string,
-    limit = 20,
-    offset = 0,
-  ): Promise<PostWithRelations[]> {
-    const result = await db
-      .select({
-        id: posts.id,
-        title: posts.title,
-        slug: posts.slug,
-        description: posts.description,
-        content: posts.content,
-        photoUrl: posts.photoUrl,
-        tags: posts.tags,
-        views: posts.views,
-        authorId: posts.authorId,
-        categoryId: posts.categoryId,
-        published: posts.published,
-        createdAt: posts.createdAt,
-        updatedAt: posts.updatedAt,
-        publishedAt: posts.publishedAt,
-        author: {
-          id: users.id,
-          name: users.name,
-          role: users.role,
-        },
-        category: {
-          id: categories.id,
-          name: categories.name,
-          color: categories.color,
-        },
-      })
-      .from(posts)
-      .innerJoin(users, eq(posts.authorId, users.id))
-      .innerJoin(categories, eq(posts.categoryId, categories.id))
-      .where(and(eq(posts.published, true)))
-      .orderBy(desc(posts.publishedAt))
-      .limit(limit)
-      .offset(offset);
-
-    return result.filter((post) =>
-      post.tags.includes(tag.toLowerCase()),
-    ) as PostWithRelations[];
-  }
-
-  async update(id: number, data: Partial<UpdatePostDTO>): Promise<Post> {
+  /* =========================
+   * UPDATE / DELETE
+   * ========================= */
+  async update(
+    id: number,
+    data: Partial<UpdatePostDTO>
+  ): Promise<Post> {
     const updateData: any = {
       ...data,
       updatedAt: new Date(),
@@ -299,15 +220,36 @@ export class PostRepository {
     await db.delete(posts).where(eq(posts.id, id));
   }
 
-  async slugExists(slug: string, excludeId?: number): Promise<boolean> {
-    const conditions = excludeId
-      ? and(eq(posts.slug, slug), eq(posts.id, excludeId))
+  /* =========================
+   * VIEWS
+   * ========================= */
+  async incrementViews(slug: string): Promise<void> {
+    await db
+      .update(posts)
+      .set({
+        views: sql`${posts.views} + 1`,
+      })
+      .where(eq(posts.slug, slug));
+  }
+
+  /* =========================
+   * SLUG
+   * ========================= */
+  async slugExists(
+    slug: string,
+    excludeId?: number
+  ): Promise<boolean> {
+    const condition = excludeId
+      ? and(
+          eq(posts.slug, slug),
+          sql`${posts.id} != ${excludeId}`
+        )
       : eq(posts.slug, slug);
 
     const [result] = await db
       .select({ id: posts.id })
       .from(posts)
-      .where(conditions)
+      .where(condition)
       .limit(1);
 
     return !!result;

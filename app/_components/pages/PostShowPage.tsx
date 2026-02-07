@@ -3,15 +3,13 @@ import { Calendar, Eye, ArrowLeft, Tag, User, Clock } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import { getServerSession } from 'next-auth';
 
 interface PostShowPageProps {
-  params: {
-    slug: string;
-  };
+  slug: string
 }
 
-export default async function PostShowPage({ params }: PostShowPageProps) {
-  const { slug } = await params;
+export const PostShowPage = async ({ slug }: PostShowPageProps) => {
   const post = await postService.findBySlug(slug);
 
   if (!post) {
@@ -30,6 +28,8 @@ export default async function PostShowPage({ params }: PostShowPageProps) {
     borderColor: `${postWithRelations.category?.color}55`,
   };
 
+  const session = await getServerSession();
+
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header com logo e navegação */}
@@ -38,7 +38,7 @@ export default async function PostShowPage({ params }: PostShowPageProps) {
           <div className="flex items-center justify-between">
             {/* Logo e Voltar */}
             <div className="flex items-center gap-6">
-              <Link href="/journalist/posts" className="shrink-0">
+              <Link href="/" className="shrink-0">
                 <Image
                   src="/images/logo.png"
                   alt="NE1 Notícias"
@@ -50,7 +50,7 @@ export default async function PostShowPage({ params }: PostShowPageProps) {
               </Link>
               
               <Link
-                href="/journalist/"
+                href="/"
                 className="hidden sm:flex items-center gap-2 text-gray-600 hover:text-[#283583] transition-colors group"
               >
                 <span className="font-medium">Voltar</span>
@@ -88,10 +88,12 @@ export default async function PostShowPage({ params }: PostShowPageProps) {
           <div className="relative h-[60vh] w-full overflow-hidden">
             {/* Overlay com cores da identidade visual */}
             <div className="absolute inset-0 bg-linear-to-t from-[#283583]/80 via-[#C4161C]/20 to-transparent z-10" />
-            <img
+            <Image
               src={postWithRelations.photoUrl}
               alt={postWithRelations.title}
               className="w-full h-full object-cover"
+              width={1200}
+              height={1200}
             />
             <div className="absolute bottom-0 left-0 right-0 z-20 p-8 lg:p-12">
               <div className="max-w-5xl mx-auto">
@@ -225,40 +227,20 @@ export default async function PostShowPage({ params }: PostShowPageProps) {
             <p className="text-gray-600 text-sm font-medium">
               Última atualização: {new Date(postWithRelations.updatedAt).toLocaleDateString('pt-BR')}
             </p>
-            <div className="flex gap-3">
-              <Link
-                href={`/journalist/posts/${postWithRelations.slug}/edit`}
-                className="px-6 py-2.5 bg-linear-to-r from-[#283583] to-[#3d4ba8] hover:from-[#1e2660] hover:to-[#283583] text-white font-semibold rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-[#283583]/25 hover:-translate-y-0.5"
-              >
-                Editar Postagem
-              </Link>
-            </div>
+            {
+              session?.user &&
+              <div className="flex gap-3">
+                <Link
+                  href={`/journalist/posts/${postWithRelations.slug}/edit`}
+                  className="px-6 py-2.5 bg-linear-to-r from-[#283583] to-[#3d4ba8] hover:from-[#1e2660] hover:to-[#283583] text-white font-semibold rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-[#283583]/25 hover:-translate-y-0.5"
+                >
+                  Editar Postagem
+                </Link>
+              </div>
+            }
           </div>
         </div>
       </div>
     </div>
   );
-}
-
-// Metadata para SEO
-export async function generateMetadata({ params }: PostShowPageProps) {
-  const { slug } = await params;
-  const post = await postService.findBySlug(slug);
-
-  if (!post) {
-    return {
-      title: 'Post não encontrado',
-    };
-  }
-
-  return {
-    title: `${post.title} | NE1 Notícias`,
-    description: post.description,
-    openGraph: {
-      title: post.title,
-      description: post.description,
-      images: post.photoUrl ? [post.photoUrl] : [],
-      siteName: 'NE1 Notícias',
-    },
-  };
 }

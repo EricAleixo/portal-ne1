@@ -3,9 +3,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar, Eye, ArrowRight, Clock, Newspaper } from 'lucide-react';
 import { PostWithRelations } from '@/app/_types/Post';
+import { categoryService } from '@/app/_services/categorie.service';
 
 export const HomePage = async () => {
   const allPosts = await postService.findAllPublished(50, 0);
+  const allCategories = await categoryService.getAll();
   
   // Separar posts por categorias
   const featuredPost = allPosts[0];
@@ -33,13 +35,13 @@ export const HomePage = async () => {
     .slice(0, 3);
 
   if (allPosts.length === 0) {
-    return <EmptyState />;
+    return <EmptyState allCategories={allCategories} />;
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header/Navbar */}
-      <Header />
+      <Header allCategories={allCategories} />
 
       {/* Hero Section - Destaque Principal */}
       {featuredPost && <HeroSection post={featuredPost} />}
@@ -132,7 +134,7 @@ export const HomePage = async () => {
                     {category.name}
                   </h2>
                   <Link 
-                    href={`/categoria/${category.name.toLowerCase()}`}
+                    href={`/categorias/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
                     className="text-sm font-black uppercase tracking-wide hover:underline transition-all"
                     style={{ color: category.color }}
                   >
@@ -206,14 +208,12 @@ export const HomePage = async () => {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer allCategories={allCategories} />
     </div>
   );
 }
 
-// ============ COMPONENTS ============
-
-function Header() {
+function Header({ allCategories }: { allCategories: Array<{ id: number; name: string; color: string }> }) {
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b-4 border-[#C4161C] shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
@@ -237,13 +237,24 @@ function Header() {
               <span>Início</span>
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#C4161C] group-hover:w-full transition-all duration-300" />
             </Link>
-            <Link 
-              href="/categorias" 
-              className="text-gray-900 hover:text-[#C4161C] font-black uppercase text-sm tracking-wide transition-all duration-300 relative group"
-            >
-              <span>Categorias</span>
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#C4161C] group-hover:w-full transition-all duration-300" />
-            </Link>
+            
+            {allCategories.slice(0, 5).map((category) => (
+              <Link 
+                key={category.id}
+                href={`/categorias/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+                className="text-gray-900 font-black uppercase text-sm tracking-wide transition-all duration-300 relative group"
+                style={{ 
+                  '--hover-color': category.color 
+                } as React.CSSProperties}
+              >
+                <span className="group-hover:opacity-80">{category.name}</span>
+                <span 
+                  className="absolute bottom-0 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300"
+                  style={{ backgroundColor: category.color }}
+                />
+              </Link>
+            ))}
+            
             <Link 
               href="/sobre" 
               className="text-gray-900 hover:text-[#C4161C] font-black uppercase text-sm tracking-wide transition-all duration-300 relative group"
@@ -495,7 +506,7 @@ function VerticalCard({ post, color }: { post: PostWithRelations; color: string 
   );
 }
 
-function Footer() {
+function Footer({ allCategories }: { allCategories: Array<{ id: number; name: string; color: string }> }) {
   return (
     <footer className="bg-gradient-to-br from-[#283583] via-[#1e2660] to-[#283583] text-white mt-20 relative overflow-hidden">
       {/* Efeitos decorativos */}
@@ -517,11 +528,18 @@ function Footer() {
             </p>
           </div>
           <div>
-            <h3 className="font-black text-xl mb-6 uppercase tracking-tight">Links Rápidos</h3>
+            <h3 className="font-black text-xl mb-6 uppercase tracking-tight">Categorias</h3>
             <ul className="space-y-3 text-white/80 font-semibold">
-              <li><Link href="/" className="hover:text-[#F9C74F] transition-colors">Início</Link></li>
-              <li><Link href="/categorias" className="hover:text-[#F9C74F] transition-colors">Categorias</Link></li>
-              <li><Link href="/sobre" className="hover:text-[#F9C74F] transition-colors">Sobre</Link></li>
+              {allCategories.map((category) => (
+                <li key={category.id}>
+                  <Link 
+                    href={`/categorias/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+                    className="hover:text-[#F9C74F] transition-colors"
+                  >
+                    {category.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
           <div>
@@ -540,10 +558,10 @@ function Footer() {
   );
 }
 
-function EmptyState() {
+function EmptyState({ allCategories }: { allCategories: Array<{ id: number; name: string; color: string }> }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <Header />
+      <Header allCategories={allCategories} />
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
         <div className="bg-white rounded-3xl shadow-2xl p-12 lg:p-16 border-t-8 border-[#C4161C]">
@@ -569,7 +587,7 @@ function EmptyState() {
         </div>
       </div>
 
-      <Footer />
+      <Footer allCategories={allCategories} />
     </div>
   );
 }

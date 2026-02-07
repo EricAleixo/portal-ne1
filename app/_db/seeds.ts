@@ -5,30 +5,40 @@ import { eq } from "drizzle-orm";
 
 const seed = async () => {
   /* =========================
-   * 1️⃣ USUÁRIO
+   * 1️⃣ ADMIN
    * ========================= */
-  let [author] = await db
+  let [admin] = await db
     .select()
     .from(users)
-    .where(eq(users.name, "Jornalista 1"))
+    .where(eq(users.name, "Admin Aleixo"))
     .limit(1);
 
-  if (!author) {
-    const passwordHash = await bcrypt.hash("jornalista123", 10);
+  const passwordHash = await bcrypt.hash("admin123", 10);
 
-    const [createdUser] = await db
+  if (!admin) {
+    const [createdAdmin] = await db
       .insert(users)
       .values({
-        name: "Jornalista 1",
+        name: "Admin Aleixo",
         passwordHash,
-        role: "JOURNALIST",
+        role: "ADMIN",
       })
       .returning();
 
-    author = createdUser;
-    console.log("Usuário criado 👤");
+    admin = createdAdmin;
+    console.log("Admin criado 👑");
   } else {
-    console.log("Usuário já existe 👤");
+    // se já existir, atualiza a senha e o role
+    await db
+      .update(users)
+      .set({
+        name: "admin",
+        passwordHash,
+        role: "ADMIN"
+      })
+      .where(eq(users.id, admin.id));
+
+    console.log("Admin já existia — senha atualizada 🔐");
   }
 
   /* =========================
@@ -55,7 +65,7 @@ const seed = async () => {
     console.log("Categoria já existe 🏷️");
   }
 
-    /* =========================
+  /* =========================
    * 3️⃣ POST (UPDATE)
    * ========================= */
   const [existingPost] = await db
@@ -73,60 +83,7 @@ const seed = async () => {
           "Portal estreia com sua primeira matéria focada em tecnologia e inovação.",
         content: `
           <h2>O início de um novo portal de notícias</h2>
-
-          <p>
-            O lançamento de um portal de notícias representa um passo importante
-            para a disseminação de informação confiável e bem estruturada. Esta
-            matéria inaugura oficialmente a plataforma e demonstra o potencial
-            do sistema desenvolvido.
-          </p>
-
-          <p>
-            O objetivo principal deste projeto é unir tecnologia moderna,
-            organização editorial e uma experiência de leitura agradável para
-            o usuário final.
-          </p>
-
-          <h2>Tecnologia e arquitetura</h2>
-
-          <p>
-            A aplicação foi construída utilizando ferramentas atuais do
-            ecossistema JavaScript. O Drizzle ORM é responsável pela camada de
-            persistência de dados, oferecendo tipagem forte e segurança nas
-            operações com o banco.
-          </p>
-
-          <p>
-            No frontend, o Next.js com App Router permite a criação de rotas
-            dinâmicas, geração automática de metadata para SEO e renderização
-            otimizada do conteúdo.
-          </p>
-
-          <h2>Importância do seed no desenvolvimento</h2>
-
-          <p>
-            Seeds são amplamente utilizadas em ambientes profissionais para
-            popular o banco de dados com informações iniciais. Isso garante que
-            o sistema esteja funcional desde o primeiro momento.
-          </p>
-
-          <p>
-            Neste caso, a seed foi utilizada para atualizar a primeira matéria
-            do portal, mantendo o histórico e evitando duplicidade de registros.
-          </p>
-
-          <h2>Próximos passos</h2>
-
-          <p>
-            Com a base do portal pronta, novas funcionalidades poderão ser
-            adicionadas, como comentários, métricas de visualização, sistema de
-            destaque e integração com redes sociais.
-          </p>
-
-          <p>
-            Esta primeira publicação simboliza apenas o início de um projeto
-            focado em crescimento, qualidade e inovação.
-          </p>
+          <p>...</p>
         `,
         photoUrl: "https://picsum.photos/1200/600",
         tags: ["portal", "tecnologia", "notícias"],
@@ -141,7 +98,6 @@ const seed = async () => {
   } else {
     console.log("Post não encontrado para atualização ⚠️");
   }
-
 
   process.exit(0);
 };

@@ -1,7 +1,10 @@
+import { Users } from 'lucide-react';
 import Link from 'next/link';
-import React from 'react';
 
-export const Sidebar: React.FC = () => {
+export const Sidebar = ({type}: {type: string}) => {
+
+    const isAdmin = type == "ADMIN";
+
     return (
         <aside className="fixed left-0 top-0 h-screen w-64 bg-white/70 backdrop-blur-xl border-r border-white/20 z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 shadow-xl">
             {/* Logo */}
@@ -18,7 +21,7 @@ export const Sidebar: React.FC = () => {
             </div>
             
             {/* Navigation */}
-            <nav className="flex flex-col px-4">
+            <nav className="flex flex-col px-4 gap-4">
                 <Link
                     href={"/journalist"}
                     className="relative flex items-center gap-4 px-6 py-4 text-[#283583] bg-linear-to-r from-blue-50/60 to-indigo-50/40 backdrop-blur-sm rounded-xl font-semibold transition-all hover:from-blue-100/70 hover:to-indigo-100/50 group shadow-md border border-blue-200/30"
@@ -41,6 +44,27 @@ export const Sidebar: React.FC = () => {
                     </svg>
                     <span>Postagens</span>
                 </Link>
+                {
+                    isAdmin &&
+                    <>
+                        <Link
+                            href={"/users"}
+                            className="relative flex items-center gap-4 px-6 py-4 text-[#283583] bg-linear-to-r from-blue-50/60 to-indigo-50/40 backdrop-blur-sm rounded-xl font-semibold transition-all hover:from-blue-100/70 hover:to-indigo-100/50 group shadow-md border border-blue-200/30"
+                        >
+                            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-linear-to-b from-[#50c416] to-[#1ee01b] rounded-r-full shadow-lg"></div>
+                            <Users></Users>
+                            <span>Jornalistas</span>
+                        </Link>
+                        <Link
+                            href={"/category"}
+                            className="relative flex items-center gap-4 px-6 py-4 text-[#283583] bg-linear-to-r from-blue-50/60 to-indigo-50/40 backdrop-blur-sm rounded-xl font-semibold transition-all hover:from-blue-100/70 hover:to-indigo-100/50 group shadow-md border border-blue-200/30"
+                        >
+                            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-linear-to-b from-purple-600 to-pink-600 rounded-r-full shadow-lg"></div>
+                            <Users></Users>
+                            <span>Categorias</span>
+                        </Link>
+                    </>
+                }
             </nav>
         </aside>
     );

@@ -1,9 +1,19 @@
-import { categoriesService } from "../_db/_repositories/categories.repository";
+import { categoryRepository } from "../_db/_repositories/categories.repository";
 
-export class CategorieService{
+class CategoryService{
 
     async getAll(){
-        return await categoriesService.getAll();
+        return await categoryRepository.getAll();
+    }
+
+    async getByName(name: string){
+        return await categoryRepository.getByName(name);
+    }
+
+    async getById(id: number){
+        return await categoryRepository.getById(id);
     }
 
 }
+
+export const categoryService = new CategoryService();

@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const createPostSchema = z.object({
   title: z.string().min(1, "Título é obrigatório").max(255, "Título muito longo"),
+  slug: z.string().min(1).max(255),
   description: z.string().min(1, "Descrição é obrigatória").max(500, "Descrição muito longa"),
   content: z.string().min(1, "Conteúdo é obrigatório"),
   photoFile: z.any().optional(),
@@ -13,6 +14,7 @@ export const createPostSchema = z.object({
 
 export const updatePostSchema = z.object({
   title: z.string().min(1).max(255).optional(),
+  slug: z.string().min(1).max(255),
   description: z.string().min(1).max(500).optional(),
   content: z.string().min(1).optional(),
   photoFile: z.any().optional(),

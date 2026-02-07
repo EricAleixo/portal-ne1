@@ -35,7 +35,8 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             role: user.role,
           };
-        } catch {
+        } catch(e) {
+          console.log("entou aqui", e)
           return null;
         }
       },
