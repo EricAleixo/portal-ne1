@@ -12,7 +12,7 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
   // Empty state
   if (posts.length === 0) {
     return (
-      <article className="bg-white/60 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-white/20">
+      <article className="bg-white/60 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20">
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6 sm:p-8 border-b border-gray-200/50 bg-linear-to-r from-blue-50/30 to-purple-50/30">
           <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-[#283583] to-[#3d4ba8] bg-clip-text text-transparent h-11">
             Postagens
@@ -58,7 +58,7 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
   });
 
   return (
-    <article className="bg-white/60 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-white/20">
+    <article className="bg-white/60 rounded-2xl shadow-xl border border-white/20">
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6 sm:p-8 border-b border-gray-200/50 bg-linear-to-r from-blue-50/30 via-purple-50/20 to-green-50/30">
         <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-[#283583] to-[#3d4ba8] bg-clip-text text-transparent h-11">
           Postagens
