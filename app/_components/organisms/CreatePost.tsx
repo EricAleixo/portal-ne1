@@ -12,8 +12,6 @@ import {
   Upload,
   Trash2,
   Link as LinkIcon,
-  Eye,
-  EyeOff,
   CircleAlert,
   Lightbulb,
 } from "lucide-react";
@@ -24,6 +22,7 @@ import Link from "next/link";
 import { postService } from "@/services/posts.service";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 // Editor WYSIWYG para Markdown
 const MDEditor = dynamic(
@@ -324,9 +323,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
       <article className="bg-white/60 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-white/20">
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6 sm:p-8 border-b border-gray-200/50 bg-linear-to-r from-blue-50/30 via-purple-50/20 to-green-50/30">
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-linear-to-br from-blue-100/50 to-indigo-100/50 border border-blue-200/30 shadow-lg">
-              <FileText className="w-6 h-6 text-[#283583]" />
-            </div>
+            <Image src={"/images/logo.png"} alt="Logo portal" width={40} height={40}></Image>
             <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-[#283583] to-[#3d4ba8] bg-clip-text text-transparent h-11">
               Nova Postagem
             </h1>

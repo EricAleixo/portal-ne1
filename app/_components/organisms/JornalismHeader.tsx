@@ -28,9 +28,9 @@ export const JournalismHeader = ({ user }: {user: {name: string, avatarUrl: stri
 
     return `
       bg-gradient-to-r 
-      from-neutral-800 
-      via-neutral-700 
-      to-neutral-900
+      from-blue-800 
+      via-blue-700 
+      to-blue-900
       text-white 
       border-0
       shadow-sm

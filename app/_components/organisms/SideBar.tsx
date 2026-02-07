@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Users } from 'lucide-react';
 import Link from 'next/link';
 
@@ -8,13 +9,8 @@ export const Sidebar = ({type}: {type: string}) => {
     return (
         <aside className="fixed left-0 top-0 h-screen w-64 bg-white/70 backdrop-blur-xl border-r border-white/20 z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 shadow-xl">
             {/* Logo */}
-            <div className="flex items-center gap-4 p-8 mb-8">
-                <div className="w-12 h-12 rounded-2xl overflow-hidden grid grid-cols-2 grid-rows-2 shrink-0 shadow-lg border border-white/30">
-                    <div className="bg-linear-to-br from-[#C4161C] to-[#e01b22]"></div>
-                    <div className="bg-linear-to-br from-[#5FAD56] to-[#6ec263]"></div>
-                    <div className="bg-linear-to-br from-[#283583] to-[#3d4ba8]"></div>
-                    <div className="bg-linear-to-br from-[#E8A443] to-[#f0b456]"></div>
-                </div>
+            <div className="flex items-center gap-2 px-8 py-6 mb-8">
+                <Image src={"/images/logo.png"} alt="Logo portal" width={40} height={40}></Image>
                 <span className="text-2xl font-bold bg-linear-to-r from-[#283583] to-[#3d4ba8] bg-clip-text text-transparent">
                     NE1
                 </span>
