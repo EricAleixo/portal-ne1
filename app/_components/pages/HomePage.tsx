@@ -306,7 +306,9 @@ function PostCard({ post }: { post: PostWithRelations }) {
       {/* Image */}
       <div className="relative h-56 overflow-hidden bg-gray-100">
         {post.photoUrl ? (
-          <img
+          <Image
+            width={1200}
+            height={1200}
             src={post.photoUrl}
             alt={post.title}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
@@ -391,7 +393,9 @@ function CompactCard({ post, color }: { post: PostWithRelations; color: string }
     >
       <div className="relative w-28 h-28 shrink-0 rounded-lg overflow-hidden bg-gray-100">
         {post.photoUrl ? (
-          <img
+          <Image
+            width={1200}
+            height={1200}
             src={post.photoUrl}
             alt={post.title}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
@@ -423,7 +427,9 @@ function VerticalCard({ post, color }: { post: PostWithRelations; color: string 
     >
       <div className="relative h-48 overflow-hidden bg-gray-100">
         {post.photoUrl ? (
-          <img
+          <Image
+            width={1200}
+            height={1200}
             src={post.photoUrl}
             alt={post.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

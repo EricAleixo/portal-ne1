@@ -3,6 +3,7 @@ import { FileText, Eye, Edit2, Trash2, Plus } from "lucide-react";
 import { PostWithRelations } from "@/app/_types/Post";
 import Link from "next/link";
 import { DeletePostButton } from "../molecules/DeletePostButton";
+import Image from "next/image";
 
 interface PostsTableProps {
   posts?: PostWithRelations[];
@@ -125,7 +126,9 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-4">
                     {post.photoUrl ? (
-                      <img
+                      <Image
+                        width={400}
+                        height={400}
                         src={post.photoUrl}
                         alt={post.title}
                         className="w-16 h-16 rounded-lg object-cover border border-gray-200/50"
@@ -189,14 +192,18 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
                     >
                       <Eye className="w-4 h-4 group-hover:scale-110 transition-transform" />
                     </Link>
-                    <button
-                      className="p-2 bg-white/50 backdrop-blur-sm border border-gray-200/60 rounded-lg hover:bg-linear-to-r hover:from-blue-50 hover:to-indigo-50 hover:border-[#283583]/30 hover:text-[#283583] text-gray-600 transition-all duration-200 hover:shadow-md group"
+                    <Link
+                      href={`/journalist/posts/${post.slug}/edit`}
+                      className="p-2 bg-white/50 backdrop-blur-sm border border-gray-200/60 rounded-lg hover:bg-linear-to-r hover:from-blue-50 hover:to-indigo-50 hover:border-[#283583]/30 hover:text-[#283583] text-gray-600 transition-all duration-200 group"
                       title="Editar"
                       aria-label={`Editar ${post.title}`}
                     >
                       <Edit2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                    </button>
-                    <DeletePostButton postId={post.id} postTitle={post.title}></DeletePostButton>
+                    </Link>
+                    <DeletePostButton
+                      postId={post.id}
+                      postTitle={post.title}
+                    ></DeletePostButton>
                   </div>
                 </td>
               </tr>
@@ -215,7 +222,9 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
             {/* Card Header */}
             <div className="flex items-start gap-3 mb-4">
               {post.photoUrl ? (
-                <img
+                <Image
+                  width={400}
+                  height={400}
                   src={post.photoUrl}
                   alt={post.title}
                   className="w-20 h-20 rounded-lg object-cover border border-gray-200/50 shrink-0"
@@ -278,13 +287,14 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
                 >
                   <Eye className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 </Link>
-                <button
+                <Link
+                  href={`/journalist/posts/${post.slug}/edit`}
                   className="p-2 bg-white/50 backdrop-blur-sm border border-gray-200/60 rounded-lg hover:bg-linear-to-r hover:from-blue-50 hover:to-indigo-50 hover:border-[#283583]/30 hover:text-[#283583] text-gray-600 transition-all duration-200 group"
                   title="Editar"
                   aria-label={`Editar ${post.title}`}
                 >
                   <Edit2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                </button>
+                </Link>
                 <button
                   className="p-2 bg-white/50 backdrop-blur-sm border border-gray-200/60 rounded-lg hover:bg-linear-to-r hover:from-red-50 hover:to-pink-50 hover:border-[#C4161C]/30 hover:text-[#C4161C] text-gray-600 transition-all duration-200 group"
                   title="Deletar"

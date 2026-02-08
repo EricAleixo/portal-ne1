@@ -13,6 +13,8 @@ import slugify from "slugify";
 import path from "path";
 import fs from "fs/promises";
 import { v4 as uuidv4 } from "uuid";
+import { s3 } from "@/lib/aws/s3";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 
 export class PostService {
   /**
@@ -38,18 +40,22 @@ export class PostService {
    * Salvar arquivo de imagem
    */
   private async savePhotoFile(file: File): Promise<string> {
-      const uploadDir = path.join(process.cwd(), "public", "uploads", "posts");
-      await fs.mkdir(uploadDir, { recursive: true });
-      
-      const ext = path.extname(file.name);
-      const filename = `${uuidv4()}${ext}`;
-      const filepath = path.join(uploadDir, filename);
-      
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      
-      await fs.writeFile(filepath, buffer);
-      return `/uploads/posts/${filename}`;
+    const ext = path.extname(file.name);
+    const filename = `${uuidv4()}${ext}`;
+
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET!,
+        Key: `posts/${filename}`,
+        Body: buffer,
+        ContentType: file.type
+      }),
+    );
+
+    return `https://${process.env.AWS_S3_BUCKET}.s3.amazonaws.com/posts/${filename}`;
   }
 
   /**

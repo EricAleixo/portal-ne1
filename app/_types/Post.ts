@@ -42,6 +42,7 @@ export interface Post {
   tags: string[];
   views: number;
   authorId: number;
+  categoryId: number;
   published: boolean;
   createdAt: Date;
   updatedAt: Date;

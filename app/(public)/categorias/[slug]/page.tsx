@@ -152,7 +152,9 @@ function FeaturedPostCard({
     >
       <div className="relative h-125">
         {post.photoUrl ? (
-          <img
+          <Image
+            width={1200}
+            height={1200}
             src={post.photoUrl}
             alt={post.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
@@ -222,7 +224,9 @@ function PostCard({
     >
       <div className="relative h-56 overflow-hidden bg-gray-100">
         {post.photoUrl ? (
-          <img
+          <Image
+            width={1200}
+            height={1200}
             src={post.photoUrl}
             alt={post.title}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"

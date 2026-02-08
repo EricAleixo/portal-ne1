@@ -9,7 +9,7 @@ export async function PUT(
 ) {
   try {
     const session = await getSessionOrThrow();
-    const { slug } = params;
+    const { slug } = await params;
 
     if (!slug) {
       return NextResponse.json(
@@ -62,7 +62,7 @@ export async function DELETE(
 ) {
   try {
     const session = await getSessionOrThrow();
-    const { slug } = params;
+    const { slug } = await params;
 
     if (!slug) {
       return NextResponse.json(
