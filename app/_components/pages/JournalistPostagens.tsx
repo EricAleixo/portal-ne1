@@ -4,9 +4,11 @@ import {  PostWithRelations } from "@/app/_types/Post";
 import { postService } from "@/app/_services/post.service";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import { getSessionOrThrow } from "@/app/api/_utils/session";
 
 export const JournalistPostagens = async () => {
-  const session = await getServerSession();
+  const session = await getSessionOrThrow();
+  console.log(session)
 
   if (!session) redirect("/");
 

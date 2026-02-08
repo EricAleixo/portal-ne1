@@ -41,6 +41,71 @@ export const JournalismHeader = ({
     `;
   };
 
+  // Função para pegar a primeira letra do nome
+  const getInitial = (name: string) => {
+    return name.charAt(0).toUpperCase();
+  };
+
+  // Função para gerar cor de fundo baseada no nome
+  const getAvatarColor = (name: string) => {
+    const colors = [
+      "from-[#283583] to-[#3d4ba8]",
+      "from-[#C4161C] to-[#e01b22]",
+      "from-[#5FAD56] to-[#4a9d47]",
+      "from-[#F9C74F] to-[#f4a93f]",
+      "from-purple-600 to-purple-700",
+      "from-pink-600 to-pink-700",
+    ];
+    const index = name.charCodeAt(0) % colors.length;
+    return colors[index];
+  };
+
+  // Componente Avatar Reutilizável
+  const Avatar = ({ size = "md", showStatus = false }: { size?: "sm" | "md" | "lg"; showStatus?: boolean }) => {
+    const sizeClasses = {
+      sm: "h-10 w-10 text-base",
+      md: "h-12 w-12 text-lg",
+      lg: "h-14 w-14 text-xl"
+    };
+
+    if (user.avatarUrl) {
+      return (
+        <div className="relative">
+          <Image
+            src={user.avatarUrl}
+            alt="Avatar do usuário"
+            className={`relative ${sizeClasses[size]} rounded-full object-cover border-2 border-white ring-2 ring-[#6ec263] group-hover:ring-[#4a9d3f] transition-all`}
+            width={size === "lg" ? 56 : size === "md" ? 48 : 40}
+            height={size === "lg" ? 56 : size === "md" ? 48 : 40}
+          />
+          {showStatus && (
+            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full animate-pulse"></div>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div className="relative">
+        <div 
+          className={`
+            relative ${sizeClasses[size]} rounded-full 
+            bg-linear-to-br ${getAvatarColor(user.name)}
+            border-2 border-white ring-2 ring-[#6ec263] 
+            group-hover:ring-[#4a9d3f] transition-all
+            flex items-center justify-center
+            font-black text-white shadow-lg
+          `}
+        >
+          {getInitial(user.name)}
+        </div>
+        {showStatus && (
+          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full animate-pulse"></div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <header className="w-full h-20 px-6 flex items-center justify-between border-b-2 border-[#C4161C] bg-white/95 backdrop-blur-sm shadow-sm mb-11 sticky top-0 z-50">
       {/* Logo */}
@@ -78,18 +143,7 @@ export const JournalismHeader = ({
           {/* Avatar with status */}
           <div className="relative">
             <div className="absolute -inset-1 bg-linear-to-r from-[#6ec263] to-[#4a9d3f] rounded-full blur opacity-25 group-hover:opacity-40 transition-opacity"></div>
-            {user.avatarUrl ? (
-              <Image
-                src={user?.avatarUrl}
-                alt="Avatar do usuário"
-                className="relative h-12 w-12 rounded-full object-cover border-2 border-white ring-2 ring-[#6ec263] group-hover:ring-[#4a9d3f] transition-all"
-                width={60}
-                height={60}
-              />
-            ) : (
-              <div>sem foto</div>
-            )}
-            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full animate-pulse"></div>
+            <Avatar size="md" showStatus={true} />
           </div>
         </button>
 
@@ -100,19 +154,11 @@ export const JournalismHeader = ({
               className="fixed inset-0 z-10"
               onClick={() => setIsMenuOpen(false)}
             />
-            <div className="absolute right-0 mt-3 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="absolute right-0 mt-3 w-72 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-20">
               {/* User Info Card */}
               <div className="bg-linear-to-br from-[#3d4ba8] to-[#2a3580] px-5 py-4 text-white">
                 <div className="flex items-center gap-3 mb-2">
-                  {user.avatarUrl && (
-                    <Image
-                      src={user?.avatarUrl}
-                      alt="Avatar"
-                      className="h-14 w-14 rounded-full object-cover border-2 border-white/30 ring-2 ring-white/20"
-                      width={56}
-                      height={56}
-                    />
-                  )}
+                  <Avatar size="lg" showStatus={false} />
                   <div>
                     <p className="font-bold text-base">{user?.name}</p>
                     <Badge className="bg-white/20 text-white border-0 font-medium text-xs px-2 py-0.5 mt-1">
@@ -123,11 +169,12 @@ export const JournalismHeader = ({
               </div>
 
               {/* Menu Items */}
-              <div className="py-2">
-                {/* Profile Option (opcional) */}
+              <div className="py-2 bg-white">
+                {/* Profile Option */}
                 <Link
                   href={"/journalist/profile"}
                   className="w-full flex items-center gap-3 px-5 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   <User className="w-5 h-5 text-gray-500 font-semibold" />
                   <span className="font-semibold">Meu Perfil</span>

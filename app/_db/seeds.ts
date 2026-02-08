@@ -1,123 +1,109 @@
-import bcrypt from "bcrypt";
 import slugify from "slugify";
 import { db } from ".";
-import { users, categories, posts } from "./schema";
+import { categories, posts, users } from "./schema";
 import { eq } from "drizzle-orm";
 
+/* =========================
+ * CONFIG
+ * ========================= */
+const TOTAL_CATEGORIES = 30;
+const TOTAL_POSTS = 30;
+
 const seed = async () => {
+  console.log("🌱 Iniciando seed...");
+
   /* =========================
-   * 1️⃣ ADMIN
+   * 1️⃣ USUÁRIO AUTOR
    * ========================= */
-  let [admin] = await db
+  const [author] = await db
     .select()
     .from(users)
-    .where(eq(users.name, "Admin Aleixo"))
+    .where(eq(users.role, "ADMIN"))
     .limit(1);
 
-  const passwordHash = await bcrypt.hash("admin123", 10);
-
-  if (!admin) {
-    const [createdAdmin] = await db
-      .insert(users)
-      .values({
-        name: "Admin Aleixo",
-        passwordHash,
-        role: "ADMIN",
-      })
-      .returning();
-
-    admin = createdAdmin;
-    console.log("Admin criado 👑");
-  } else {
-    await db
-      .update(users)
-      .set({
-        name: "Admin Aleixo",
-        passwordHash,
-        role: "ADMIN",
-      })
-      .where(eq(users.id, admin.id));
-
-    console.log("Admin já existia — atualizado 🔐");
+  if (!author) {
+    throw new Error("Nenhum ADMIN encontrado para ser autor dos posts");
   }
 
   /* =========================
-   * 2️⃣ CATEGORIA (COM SLUG)
+   * 2️⃣ CATEGORIAS
    * ========================= */
-  const categoryName = "Tecnologia";
-  const categorySlug = slugify(categoryName, {
-    lower: true,
-    strict: true,
-  });
+  const createdCategories = [];
 
-  let [category] = await db
-    .select()
-    .from(categories)
-    .where(eq(categories.slug, categorySlug))
-    .limit(1);
+  for (let i = 1; i <= TOTAL_CATEGORIES; i++) {
+    const name = `Categoria ${i}`;
+    const slug = slugify(name, { lower: true, strict: true });
 
-  if (!category) {
-    const [createdCategory] = await db
+    const [existing] = await db
+      .select()
+      .from(categories)
+      .where(eq(categories.slug, slug))
+      .limit(1);
+
+    if (existing) {
+      createdCategories.push(existing);
+      continue;
+    }
+
+    const [category] = await db
       .insert(categories)
       .values({
-        name: categoryName,
-        slug: categorySlug,
-        color: "#6366F1",
+        name,
+        slug,
+        color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
       })
       .returning();
 
-    category = createdCategory;
-    console.log("Categoria criada 🏷️");
-  } else {
-    // garante que categorias antigas recebam slug
-    await db
-      .update(categories)
-      .set({
-        slug: categorySlug,
-      })
-      .where(eq(categories.id, category.id));
-
-    console.log("Categoria já existia — slug garantido 🏷️");
+    createdCategories.push(category);
   }
+
+  console.log(`🏷️ ${createdCategories.length} categorias prontas`);
 
   /* =========================
-   * 3️⃣ POST (UPDATE)
+   * 3️⃣ POSTS (MESMA CATEGORIA)
    * ========================= */
-  const [existingPost] = await db
-    .select()
-    .from(posts)
-    .where(eq(posts.slug, "primeira-noticia-do-portal"))
-    .limit(1);
+  const mainCategory = createdCategories[0];
 
-  if (existingPost) {
-    await db
-      .update(posts)
-      .set({
-        title: "Primeira notícia do portal",
-        description:
-          "Portal estreia com sua primeira matéria focada em tecnologia e inovação.",
-        content: `
-          <h2>O início de um novo portal de notícias</h2>
-          <p>...</p>
-        `,
-        photoUrl: "https://picsum.photos/1200/600",
-        tags: ["portal", "tecnologia", "notícias"],
-        categoryId: category.id,
-        published: true,
-        publishedAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .where(eq(posts.id, existingPost.id));
+  for (let i = 1; i <= TOTAL_POSTS; i++) {
+    const title = `Post ${i} — Tecnologia e Inovação`;
+    const slug = slugify(title, { lower: true, strict: true });
 
-    console.log("Post atualizado com sucesso 🔄");
-  } else {
-    console.log("Post não encontrado para atualização ⚠️");
+    const [existingPost] = await db
+      .select()
+      .from(posts)
+      .where(eq(posts.slug, slug))
+      .limit(1);
+
+    if (existingPost) continue;
+
+    await db.insert(posts).values({
+      title,
+      slug,
+      description: `Descrição do post ${i}, focado em tecnologia.`,
+      content: `
+        <h2>Post ${i}</h2>
+        <p>Este é o conteúdo do post número ${i}. Ele faz parte do seed do portal.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      `,
+      photoUrl: `https://picsum.photos/seed/post-${i}/1200/600`,
+      tags: ["tecnologia", "portal", "notícias"],
+      views: 0,
+      authorId: author.id,
+      categoryId: mainCategory.id,
+      published: true,
+      publishedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
   }
 
+  console.log(`📰 ${TOTAL_POSTS} posts criados na categoria "${mainCategory.name}"`);
+
+  console.log("✅ Seed finalizado com sucesso");
   process.exit(0);
 };
 
 seed().catch((err) => {
-  console.error("Erro no seed:", err);
+  console.error("❌ Erro no seed:", err);
   process.exit(1);
 });

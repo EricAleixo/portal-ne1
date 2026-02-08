@@ -53,6 +53,7 @@ export interface PostWithRelations extends Post {
   author: {
     id: number;
     name: string;
+    photoProfile: string | undefined;
     role: "ADMIN" | "JOURNALIST";
   };
   category: {

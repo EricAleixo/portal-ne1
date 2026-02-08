@@ -1,13 +1,13 @@
-import { postService } from '@/app/_services/post.service';
-import { Calendar, Eye, ArrowLeft, Tag, User, Clock } from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { notFound } from 'next/navigation';
-import { getServerSession } from 'next-auth';
-import { Header } from '../organisms/Header';
+import { postService } from "@/app/_services/post.service";
+import { Calendar, Eye, ArrowLeft, Tag, User, Clock } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { Header } from "../organisms/Header";
 
 interface PostShowPageProps {
-  slug: string
+  slug: string;
 }
 
 export const PostShowPage = async ({ slug }: PostShowPageProps) => {
@@ -25,7 +25,7 @@ export const PostShowPage = async ({ slug }: PostShowPageProps) => {
 
   const categoryBadgeStyle = {
     background: `linear-gradient(135deg, ${postWithRelations.category?.color}20, ${postWithRelations.category?.color}40)`,
-    color: postWithRelations.category?.color || '#283583',
+    color: postWithRelations.category?.color || "#283583",
     borderColor: `${postWithRelations.category?.color}55`,
   };
 
@@ -66,7 +66,7 @@ export const PostShowPage = async ({ slug }: PostShowPageProps) => {
             {/* Decoração com cores da marca */}
             <div className="absolute top-0 right-0 w-96 h-96 bg-[#C4161C]/10 rounded-full blur-3xl" />
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#5FAD56]/10 rounded-full blur-3xl" />
-            
+
             <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 drop-shadow-lg">
                 {postWithRelations.title}
@@ -86,23 +86,66 @@ export const PostShowPage = async ({ slug }: PostShowPageProps) => {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-linear-to-br from-[#283583]/10 to-[#3d4ba8]/10">
-                <User className="w-4 h-4 text-[#283583]" />
-              </div>
+              {postWithRelations.author?.photoProfile &&
+              !postWithRelations.author.photoProfile.includes(
+                "avatar-placeholder",
+              ) ? (
+                <Image
+                  src={postWithRelations.author.photoProfile}
+                  alt={`Foto de ${postWithRelations.author.name}`}
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 rounded-full object-cover border-2 border-white ring-2 ring-gray-200 shadow-sm"
+                />
+              ) : (
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center font-black text-white text-xs border-2 border-white ring-2 ring-gray-200 shadow-sm"
+                  style={{
+                    background: `linear-gradient(to bottom right, ${
+                      [
+                        "#283583",
+                        "#C4161C",
+                        "#5FAD56",
+                        "#F9C74F",
+                        "#9333ea",
+                        "#db2777",
+                      ][
+                        (postWithRelations.author?.name?.charCodeAt(0) || 0) % 6
+                      ]
+                    }, ${
+                      [
+                        "#3d4ba8",
+                        "#e01b22",
+                        "#4a9d47",
+                        "#f4a93f",
+                        "#7e22ce",
+                        "#be185d",
+                      ][
+                        (postWithRelations.author?.name?.charCodeAt(0) || 0) % 6
+                      ]
+                    })`,
+                  }}
+                >
+                  {postWithRelations.author?.name?.charAt(0).toUpperCase() ||
+                    "?"}
+                </div>
+              )}
               <span className="font-medium text-gray-900">
-                {postWithRelations.author?.name || 'Autor Desconhecido'}
+                {postWithRelations.author?.name || "Autor Desconhecido"}
               </span>
             </div>
-            
+
             <div className="flex items-center gap-2">
               <div className="p-1.5 rounded-lg bg-linear-to-br from-[#C4161C]/10 to-[#e01b22]/10">
                 <Calendar className="w-4 h-4 text-[#C4161C]" />
               </div>
               <time className="font-medium">
-                {new Date(postWithRelations.publishedAt || postWithRelations.createdAt).toLocaleDateString('pt-BR', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric'
+                {new Date(
+                  postWithRelations.publishedAt || postWithRelations.createdAt,
+                ).toLocaleDateString("pt-BR", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
                 })}
               </time>
             </div>
@@ -112,7 +155,8 @@ export const PostShowPage = async ({ slug }: PostShowPageProps) => {
                 <Clock className="w-4 h-4 text-[#5FAD56]" />
               </div>
               <span className="font-medium">
-                {Math.ceil(postWithRelations.content.split(' ').length / 200)} min de leitura
+                {Math.ceil(postWithRelations.content.split(" ").length / 200)}{" "}
+                min de leitura
               </span>
             </div>
 
@@ -120,7 +164,9 @@ export const PostShowPage = async ({ slug }: PostShowPageProps) => {
               <div className="p-1.5 rounded-lg bg-linear-to-br from-blue-500/10 to-indigo-500/10">
                 <Eye className="w-4 h-4 text-blue-600" />
               </div>
-              <span className="font-medium">{postWithRelations.views || 0} visualizações</span>
+              <span className="font-medium">
+                {postWithRelations.views || 0} visualizações
+              </span>
             </div>
 
             {postWithRelations.category && (
@@ -178,11 +224,14 @@ export const PostShowPage = async ({ slug }: PostShowPageProps) => {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-gray-600 text-sm font-medium">
-              Última atualização: {new Date(postWithRelations.updatedAt).toLocaleDateString('pt-BR')}
+              Última atualização:{" "}
+              {new Date(postWithRelations.updatedAt).toLocaleDateString(
+                "pt-BR",
+              )}
             </p>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};

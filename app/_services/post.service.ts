@@ -10,13 +10,38 @@ import { db } from "@/app/_db/";
 import { users } from "@/app/_db/schema";
 import { eq } from "drizzle-orm";
 import slugify from "slugify";
-import path from "path";
-import fs from "fs/promises";
-import { v4 as uuidv4 } from "uuid";
-import { s3 } from "@/lib/aws/s3";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { s3Storage } from "../_infra/s3.storage";
 
 export class PostService {
+  /**
+   * Extrair a key do S3 a partir da URL completa
+   */
+  private extractS3Key(url: string): string | null {
+    const bucket = process.env.AWS_S3_BUCKET;
+    const pattern = new RegExp(
+      `https://${bucket}\\.s3\\.amazonaws\\.com/(.+)`,
+    );
+    const match = url.match(pattern);
+    return match ? match[1] : null;
+  }
+
+  /**
+   * Deletar imagem do S3 se existir
+   */
+  private async deleteS3ImageIfExists(photoUrl?: string | null): Promise<void> {
+    if (!photoUrl) return;
+
+    const key = this.extractS3Key(photoUrl);
+    if (key) {
+      try {
+        await s3Storage.delete(key);
+      } catch (error) {
+        console.error("Erro ao deletar imagem do S3:", error);
+        // Não lança erro para não bloquear a operação principal
+      }
+    }
+  }
+
   /**
    * Gerar slug único
    */
@@ -34,28 +59,6 @@ export class PostService {
     }
 
     return slug;
-  }
-
-  /**
-   * Salvar arquivo de imagem
-   */
-  private async savePhotoFile(file: File): Promise<string> {
-    const ext = path.extname(file.name);
-    const filename = `${uuidv4()}${ext}`;
-
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    await s3.send(
-      new PutObjectCommand({
-        Bucket: process.env.AWS_S3_BUCKET!,
-        Key: `posts/${filename}`,
-        Body: buffer,
-        ContentType: file.type
-      }),
-    );
-
-    return `https://${process.env.AWS_S3_BUCKET}.s3.amazonaws.com/posts/${filename}`;
   }
 
   /**
@@ -129,7 +132,7 @@ export class PostService {
     let photoUrl = data.photoUrl ?? undefined;
 
     if (data.photoFile) {
-      photoUrl = await this.savePhotoFile(data.photoFile);
+      photoUrl = await s3Storage.uploadPostImage(data.photoFile);
     }
 
     const slug = await this.generateUniqueSlug(data.title);
@@ -181,8 +184,15 @@ export class PostService {
     limit = 20,
     offset = 0,
   ): Promise<PostWithRelations[]> {
-    const authorId = userRole === "ADMIN" ? undefined : userId;
-    return postRepository.findAll(limit, offset, authorId);
+    if (userRole === "ADMIN") {
+      return postRepository.findAll(limit, offset);
+    }
+
+    if (userId === undefined || userId === null) {
+      return [];
+    }
+
+    return postRepository.findAll(limit, offset, userId);
   }
 
   /**
@@ -211,12 +221,12 @@ export class PostService {
       searchTerm,
       limit,
       offset,
-      publishedOnly
+      publishedOnly,
     );
 
     // Se for jornalista, filtrar apenas os posts dele
     if (userRole === "JOURNALIST") {
-      return results.filter(post => post.authorId === userId);
+      return results.filter((post) => post.authorId === userId);
     }
 
     return results;
@@ -240,10 +250,19 @@ export class PostService {
   ): Promise<Post> {
     await this.checkPermission(userId, id, password);
 
+    // Buscar post atual para verificar se há imagem antiga
+    const currentPost = await postRepository.findById(id);
+
     let photoUrl = data.photoUrl;
 
+    // Se está enviando novo arquivo, fazer upload e deletar o antigo
     if (data.photoFile) {
-      photoUrl = await this.savePhotoFile(data.photoFile);
+      photoUrl = await s3Storage.uploadPostImage(data.photoFile);
+
+      // Deletar imagem antiga do S3 se existir
+      if (currentPost?.photoUrl) {
+        await this.deleteS3ImageIfExists(currentPost.photoUrl);
+      }
     }
 
     let slug: string | undefined;
@@ -278,8 +297,14 @@ export class PostService {
 
     let photoUrl = data.photoUrl;
 
+    // Se está enviando novo arquivo, fazer upload e deletar o antigo
     if (data.photoFile) {
-      photoUrl = await this.savePhotoFile(data.photoFile);
+      photoUrl = await s3Storage.uploadPostImage(data.photoFile);
+
+      // Deletar imagem antiga do S3 se existir
+      if (post.photoUrl) {
+        await this.deleteS3ImageIfExists(post.photoUrl);
+      }
     }
 
     let newSlug: string | undefined;
@@ -302,14 +327,9 @@ export class PostService {
 
     const post = await postRepository.findById(id);
 
-    if (post?.photoUrl?.startsWith("/uploads/")) {
-      const filepath = path.join(process.cwd(), "public", post.photoUrl);
-
-      try {
-        await fs.unlink(filepath);
-      } catch {
-        // ignora erro se arquivo não existir
-      }
+    // Deletar imagem do S3 se existir
+    if (post?.photoUrl) {
+      await this.deleteS3ImageIfExists(post.photoUrl);
     }
 
     await postRepository.delete(id);
@@ -332,14 +352,9 @@ export class PostService {
     // valida permissão + senha
     await this.checkPermission(userId, post.id, password);
 
-    if (post.photoUrl?.startsWith("/uploads/")) {
-      const filepath = path.join(process.cwd(), "public", post.photoUrl);
-
-      try {
-        await fs.unlink(filepath);
-      } catch {
-        // ignora erro se arquivo não existir
-      }
+    // Deletar imagem do S3 se existir
+    if (post.photoUrl) {
+      await this.deleteS3ImageIfExists(post.photoUrl);
     }
 
     await postRepository.delete(post.id);

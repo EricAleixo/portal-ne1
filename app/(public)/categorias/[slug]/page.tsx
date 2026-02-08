@@ -308,7 +308,7 @@ function EmptyCategory({
 function Footer({
   allCategories,
 }: {
-  allCategories: Array<{ id: number; name: string; color: string }>;
+  allCategories: Array<{ id: number; name: string; color: string, slug: string | null }>;
 }) {
   return (
     <footer className="bg-linear-to-br from-[#283583] via-[#1e2660] to-[#283583] text-white mt-20 relative overflow-hidden">
@@ -338,7 +338,7 @@ function Footer({
               {allCategories.map((category) => (
                 <li key={category.id}>
                   <Link
-                    href={`/categorias/${category.name.toLowerCase().replace(/\s+/g, "-")}`}
+                    href={`/categorias/${category.slug}`}
                     className="hover:text-[#F9C74F] transition-colors"
                   >
                     {category.name}

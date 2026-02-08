@@ -1,6 +1,11 @@
 // app/_infra/storage/s3.storage.ts
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 import { randomUUID } from "crypto";
+import path from "path";
 
 export class S3Storage {
   private client: S3Client;
@@ -25,7 +30,27 @@ export class S3Storage {
         Bucket: process.env.AWS_S3_BUCKET!,
         Key: key,
         Body: buffer,
-        ContentType: file.type
+        ContentType: file.type,
+      })
+    );
+
+    return `https://${process.env.AWS_S3_BUCKET}.s3.amazonaws.com/${key}`;
+  }
+
+  // 👉 NOVO: upload de imagem de post
+  async uploadPostImage(file: File) {
+    const ext = path.extname(file.name);
+    const filename = `${randomUUID()}${ext}`;
+    const key = `posts/${filename}`;
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    await this.client.send(
+      new PutObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET!,
+        Key: key,
+        Body: buffer,
+        ContentType: file.type,
       })
     );
 

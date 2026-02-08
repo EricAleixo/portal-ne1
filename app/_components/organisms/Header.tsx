@@ -1,7 +1,9 @@
 import { categoryService } from "@/app/_services/categorie.service";
 import Link from "next/link";
 import Image from "next/image";
-import { SearchBarPost } from "../molecules/SearchBarPost";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { SearchButton } from "../molecules/SearchBarPost";
 
 export const Header = async ({
   currentCategory,
@@ -9,11 +11,12 @@ export const Header = async ({
   currentCategory?: string;
 }) => {
   const allCategories = await categoryService.getAll();
+  const session = await getServerSession(authOptions);
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b-4 border-[#C4161C] shadow-lg">
+    <header className="sticky top-0 z-10000000000000 bg-white/95 backdrop-blur-xl border-b-4 border-[#C4161C] shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-        {/* Linha Principal: Logo + Nav Desktop + Área Jornalista */}
+        {/* Linha Principal: Logo + Nav Desktop + Search + Área Jornalista */}
         <div className="flex items-center justify-between gap-4 mb-4">
           <Link
             href="/"
@@ -64,21 +67,25 @@ export const Header = async ({
             })}
           </nav>
 
-          <Link
-            href="/journalist/"
-            className="hidden md:block px-6 py-3 bg-linear-to-r from-[#283583] to-[#3d4ba8] hover:from-[#1e2660] hover:to-[#283583] text-white font-black uppercase text-xs tracking-wide rounded-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
-          >
-            Área do Jornalista
-          </Link>
-        </div>
+          {/* Search Button + Área do Jornalista */}
+          <div className="flex items-center gap-3">
+            {/* Search Button */}
+            <SearchButton />
 
-        {/* Linha da Pesquisa */}
-        <div className="flex items-center justify-center">
-          <SearchBarPost/>
+            {/* Área do Jornalista - Apenas para usuários logados */}
+            {session?.user && (
+              <Link
+                href="/journalist/"
+                className="hidden md:block px-6 py-3 bg-linear-to-r from-[#283583] to-[#3d4ba8] hover:from-[#1e2660] hover:to-[#283583] text-white font-black uppercase text-xs tracking-wide rounded-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+              >
+                Área do Jornalista
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* Menu Mobile */}
-        <nav className="flex lg:hidden items-center gap-4 mt-4 overflow-x-auto pb-2 scrollbar-hide">
+        <nav className="flex lg:hidden items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
           <Link
             href="/"
             className="text-gray-900 hover:text-[#C4161C] font-black uppercase text-xs tracking-wide transition-all whitespace-nowrap"

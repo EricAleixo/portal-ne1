@@ -145,51 +145,54 @@ export class PostRepository {
   }
 
   async findAll(
-    limit = 20,
-    offset = 0,
-    authorId?: number
-  ): Promise<PostWithRelations[]> {
-    const condition = authorId
+  limit = 20,
+  offset = 0,
+  authorId?: number
+): Promise<PostWithRelations[]> {
+
+  const condition =
+    authorId !== undefined
       ? eq(posts.authorId, authorId)
       : undefined;
 
-    const result = await db
-      .select({
-        id: posts.id,
-        title: posts.title,
-        slug: posts.slug,
-        description: posts.description,
-        content: posts.content,
-        photoUrl: posts.photoUrl,
-        tags: posts.tags,
-        views: posts.views,
-        authorId: posts.authorId,
-        categoryId: posts.categoryId,
-        published: posts.published,
-        createdAt: posts.createdAt,
-        updatedAt: posts.updatedAt,
-        publishedAt: posts.publishedAt,
-        author: {
-          id: users.id,
-          name: users.name,
-          role: users.role,
-        },
-        category: {
-          id: categories.id,
-          name: categories.name,
-          color: categories.color,
-        },
-      })
-      .from(posts)
-      .innerJoin(users, eq(posts.authorId, users.id))
-      .innerJoin(categories, eq(posts.categoryId, categories.id))
-      .where(condition)
-      .orderBy(desc(posts.createdAt))
-      .limit(limit)
-      .offset(offset);
+  const result = await db
+    .select({
+      id: posts.id,
+      title: posts.title,
+      slug: posts.slug,
+      description: posts.description,
+      content: posts.content,
+      photoUrl: posts.photoUrl,
+      tags: posts.tags,
+      views: posts.views,
+      authorId: posts.authorId,
+      categoryId: posts.categoryId,
+      published: posts.published,
+      createdAt: posts.createdAt,
+      updatedAt: posts.updatedAt,
+      publishedAt: posts.publishedAt,
+      author: {
+        id: users.id,
+        name: users.name,
+        role: users.role,
+      },
+      category: {
+        id: categories.id,
+        name: categories.name,
+        color: categories.color,
+      },
+    })
+    .from(posts)
+    .innerJoin(users, eq(posts.authorId, users.id))
+    .innerJoin(categories, eq(posts.categoryId, categories.id))
+    .where(condition)
+    .orderBy(desc(posts.createdAt))
+    .limit(limit)
+    .offset(offset);
 
-    return result as PostWithRelations[];
-  }
+  return result as PostWithRelations[];
+}
+
 
   /* =========================
    * UPDATE / DELETE

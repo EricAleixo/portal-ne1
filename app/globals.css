@@ -204,3 +204,210 @@ code {
 .ProseMirror a:hover {
   color: #1e40af;
 }
+
+/* Estilos para o TiptapEditor com suporte a resize de imagens */
+
+/* Estilos base do editor */
+.ProseMirror {
+  outline: none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #adb5bd;
+  pointer-events: none;
+  height: 0;
+}
+
+/* Estilos para imagens com resize */
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1rem auto;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.ProseMirror img:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Seleção de imagem */
+.ProseMirror img.ProseMirror-selectednode {
+  outline: 3px solid #283583;
+  outline-offset: 2px;
+}
+
+/* Suporte para resize - wrapper do plugin */
+.ProseMirror span[data-type="resizableImage"] {
+  display: inline-block;
+  position: relative;
+  line-height: 0;
+}
+
+.ProseMirror span[data-type="resizableImage"] img {
+  display: block;
+  margin: 0;
+}
+
+/* Handles de resize personalizados */
+.ProseMirror .resize-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #283583;
+  border: 2px solid white;
+  border-radius: 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.ProseMirror span[data-type="resizableImage"]:hover .resize-handle,
+.ProseMirror .resize-handle.is-resizing {
+  opacity: 1;
+}
+
+/* Estilos para links */
+.ProseMirror a {
+  color: #2563eb;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.ProseMirror a:hover {
+  color: #1e40af;
+}
+
+/* Estilos para código */
+.ProseMirror code {
+  background-color: #f3f4f6;
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.25rem;
+  font-family: "Courier New", monospace;
+  font-size: 0.875em;
+}
+
+.ProseMirror pre {
+  background-color: #1f2937;
+  color: #f9fafb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+  font-family: "Courier New", monospace;
+}
+
+.ProseMirror pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+
+/* Estilos para citações */
+.ProseMirror blockquote {
+  border-left: 4px solid #283583;
+  padding-left: 1rem;
+  margin-left: 0;
+  font-style: italic;
+  color: #4b5563;
+}
+
+/* Estilos para listas */
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5rem;
+}
+
+.ProseMirror li {
+  margin-bottom: 0.5rem;
+}
+
+/* Linha horizontal */
+.ProseMirror hr {
+  border: none;
+  border-top: 2px solid #e5e7eb;
+  margin: 2rem 0;
+}
+
+/* Títulos */
+.ProseMirror h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 2.5rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #111827;
+}
+
+.ProseMirror h2 {
+  font-size: 1.875rem;
+  font-weight: 600;
+  line-height: 2.25rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #1f2937;
+}
+
+.ProseMirror h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 2rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #374151;
+}
+
+/* Alinhamento de texto */
+.ProseMirror [style*="text-align: center"] {
+  text-align: center;
+}
+
+.ProseMirror [style*="text-align: right"] {
+  text-align: right;
+}
+
+.ProseMirror [style*="text-align: left"] {
+  text-align: left;
+}
+
+/* Animação de loading para upload */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.ProseMirror .image-uploading {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Drag and drop de imagens */
+.ProseMirror .image-drop-placeholder {
+  position: relative;
+  margin: 1rem 0;
+  padding: 2rem;
+  border: 2px dashed #d1d5db;
+  border-radius: 0.5rem;
+  text-align: center;
+  color: #9ca3af;
+  background-color: #f9fafb;
+}
+
+.ProseMirror .image-drop-placeholder::before {
+  content: "Solte a imagem aqui";
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+}
