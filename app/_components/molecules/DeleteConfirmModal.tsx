@@ -1,4 +1,3 @@
-// app/_components/categorias/actions/DeleteConfirmModal.tsx
 'use client'
 
 import { useState } from "react";
@@ -17,8 +16,6 @@ export const DeleteConfirmModal = ({ categoryId, categoryName, onClose }: Delete
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      // Aqui você chamaria a server action ou API para deletar
-      // await deleteCategory(categoryId);
       router.refresh();
       onClose();
     } catch (error) {

@@ -80,16 +80,22 @@ export const PostForm: React.FC<PostFormProps> = ({
   const [showPreview, setShowPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Refs para evitar re-renders durante digitação
+  const titleRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const photoUrlRef = useRef<HTMLInputElement>(null);
+  const editorRef = useRef<any>(null);
 
-  // Handle input changes
+  // Handle input changes - agora sem setState imediato
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
+    const { name } = e.target;
+    
+    // Limpar erro se existir
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -209,14 +215,18 @@ export const PostForm: React.FC<PostFormProps> = ({
   };
 
   const handlePhotoUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const url = e.target.value;
+    if (errors.photo) {
+      setErrors((prev) => ({ ...prev, photo: "" }));
+    }
+  };
+
+  const handlePhotoUrlBlur = () => {
+    const url = photoUrlRef.current?.value || "";
+    
     setFormData((prev) => ({ ...prev, photoUrl: url, photo: null }));
 
     if (url) {
       setPhotoPreview(url);
-      if (errors.photo) {
-        setErrors((prev) => ({ ...prev, photo: "" }));
-      }
     } else {
       setPhotoPreview(null);
     }
@@ -228,20 +238,29 @@ export const PostForm: React.FC<PostFormProps> = ({
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+    if (photoUrlRef.current) {
+      photoUrlRef.current.value = "";
+    }
   };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.title.trim()) {
+    // Pegar valores das refs
+    const title = titleRef.current?.value || "";
+    const description = descriptionRef.current?.value || "";
+    const photoUrl = photoUrlRef.current?.value || "";
+    const content = editorRef.current?.getContent() || "";
+
+    if (!title.trim()) {
       newErrors.title = "O título é obrigatório";
-    } else if (formData.title.length > 255) {
+    } else if (title.length > 255) {
       newErrors.title = "O título deve ter no máximo 255 caracteres";
     }
 
-    if (!formData.description.trim()) {
+    if (!description.trim()) {
       newErrors.description = "A descrição é obrigatória";
-    } else if (formData.description.length > 500) {
+    } else if (description.length > 500) {
       newErrors.description = "A descrição deve ter no máximo 500 caracteres";
     }
 
@@ -249,7 +268,7 @@ export const PostForm: React.FC<PostFormProps> = ({
       newErrors.categoryId = "Selecione uma categoria";
     }
 
-    if (!formData.content.trim()) {
+    if (!content.trim() || content === '<p></p>') {
       newErrors.content = "O conteúdo é obrigatório";
     }
 
@@ -267,17 +286,19 @@ export const PostForm: React.FC<PostFormProps> = ({
     setIsSubmitting(true);
 
     const submitData = new FormData();
-    submitData.append("title", formData.title);
-    submitData.append("description", formData.description);
-    submitData.append("content", formData.content);
+    
+    // Pegar valores das refs para submissão
+    submitData.append("title", titleRef.current?.value || "");
+    submitData.append("description", descriptionRef.current?.value || "");
+    submitData.append("content", editorRef.current?.getContent() || "");
     submitData.append("tags", JSON.stringify(formData.tags));
     submitData.append("categoryId", String(formData.categoryId));
     submitData.append("published", String(formData.published));
 
     if (formData.photo) {
       submitData.append("photoFile", formData.photo);
-    } else if (formData.photoUrl) {
-      submitData.append("photoUrl", formData.photoUrl);
+    } else if (photoUrlRef.current?.value) {
+      submitData.append("photoUrl", photoUrlRef.current.value);
     }
 
     try {
@@ -332,10 +353,11 @@ export const PostForm: React.FC<PostFormProps> = ({
               Título da Postagem
             </label>
             <input
+              ref={titleRef}
               type="text"
               id="title"
               name="title"
-              value={formData.title}
+              defaultValue={formData.title}
               onChange={handleChange}
               className={`w-full px-4 py-3 rounded-xl border ${
                 errors.title
@@ -361,9 +383,10 @@ export const PostForm: React.FC<PostFormProps> = ({
               Descrição
             </label>
             <textarea
+              ref={descriptionRef}
               id="description"
               name="description"
-              value={formData.description}
+              defaultValue={formData.description}
               onChange={handleChange}
               rows={3}
               className={`w-full px-4 py-3 rounded-xl border ${
@@ -379,7 +402,7 @@ export const PostForm: React.FC<PostFormProps> = ({
               </p>
             )}
             <p className="text-gray-500 text-sm">
-              {formData.description.length}/500 caracteres
+              {descriptionRef.current?.value.length || 0}/500 caracteres
             </p>
           </div>
 
@@ -456,7 +479,12 @@ export const PostForm: React.FC<PostFormProps> = ({
                 id="categoryId"
                 name="categoryId"
                 value={formData.categoryId}
-                onChange={handleChange}
+                onChange={(e) => {
+                  setFormData((prev) => ({ ...prev, categoryId: e.target.value }));
+                  if (errors.categoryId) {
+                    setErrors((prev) => ({ ...prev, categoryId: "" }));
+                  }
+                }}
                 className={`w-full px-4 py-3 rounded-xl border ${
                   errors.categoryId
                     ? "border-red-300 bg-red-50/50"
@@ -523,6 +551,9 @@ export const PostForm: React.FC<PostFormProps> = ({
                 onClick={() => {
                   setImageInputMode("upload");
                   setFormData((prev) => ({ ...prev, photoUrl: null }));
+                  if (photoUrlRef.current) {
+                    photoUrlRef.current.value = "";
+                  }
                 }}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
                   imageInputMode === "upload"
@@ -601,9 +632,11 @@ export const PostForm: React.FC<PostFormProps> = ({
                 ) : (
                   <div className="space-y-2">
                     <input
+                      ref={photoUrlRef}
                       type="url"
-                      value={formData.photoUrl ?? ""}
+                      defaultValue={formData.photoUrl ?? ""}
                       onChange={handlePhotoUrlChange}
+                      onBlur={handlePhotoUrlBlur}
                       className="w-full px-4 py-3 rounded-xl border border-gray-200/60 bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#283583]/20 focus:border-[#283583] transition-all duration-200"
                       placeholder="https://exemplo.com/imagem.jpg"
                     />
@@ -639,9 +672,10 @@ export const PostForm: React.FC<PostFormProps> = ({
             </label>
 
             <TiptapEditor
+              ref={editorRef}
               content={formData.content}
-              onChange={(content) => {
-                setFormData((prev) => ({ ...prev, content }));
+              onChange={() => {
+                // Limpar erro se existir
                 if (errors.content) {
                   setErrors((prev) => ({ ...prev, content: "" }));
                 }
@@ -731,7 +765,7 @@ export const PostForm: React.FC<PostFormProps> = ({
                   <div className="mb-8 rounded-2xl overflow-hidden shadow-lg">
                     <Image
                       src={photoPreview}
-                      alt={formData.title}
+                      alt={titleRef.current?.value || "Preview"}
                       className="w-full h-96 object-cover"
                       width={800}
                       height={400}
@@ -754,7 +788,7 @@ export const PostForm: React.FC<PostFormProps> = ({
 
                 {/* Title */}
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
-                  {formData.title || "Sem título"}
+                  {titleRef.current?.value || "Sem título"}
                 </h1>
 
                 {/* Meta Info */}
@@ -781,7 +815,7 @@ export const PostForm: React.FC<PostFormProps> = ({
 
                 {/* Description */}
                 <p className="text-xl text-gray-700 mb-8 leading-relaxed font-medium border-l-4 border-[#283583] pl-6 italic">
-                  {formData.description || "Sem descrição"}
+                  {descriptionRef.current?.value || "Sem descrição"}
                 </p>
 
                 {/* Tags */}
@@ -803,7 +837,7 @@ export const PostForm: React.FC<PostFormProps> = ({
                   className="prose prose-lg max-w-none"
                   dangerouslySetInnerHTML={{
                     __html:
-                      formData.content ||
+                      editorRef.current?.getContent() ||
                       '<p class="text-gray-500 italic">Sem conteúdo</p>',
                   }}
                 />

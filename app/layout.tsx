@@ -5,7 +5,7 @@ import '@uiw/react-md-editor/markdown-editor.css';
 
 export const metadata: Metadata = {
   title: "Portal - NE1",
-  description: "Notícias atualizadas e em tempo real",
+  description: "Notícias atualizadas e em tempo real"
 };
 
 export default function RootLayout({

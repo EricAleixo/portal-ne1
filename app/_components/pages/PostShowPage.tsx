@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getServerSession } from 'next-auth';
+import { Header } from '../organisms/Header';
 
 interface PostShowPageProps {
   slug: string
@@ -32,55 +33,7 @@ export const PostShowPage = async ({ slug }: PostShowPageProps) => {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Header com logo e navegação */}
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-gray-200/50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo e Voltar */}
-            <div className="flex items-center gap-6">
-              <Link href="/" className="shrink-0">
-                <Image
-                  src="/images/logo.png"
-                  alt="NE1 Notícias"
-                  width={120}
-                  height={40}
-                  className="h-10 w-auto"
-                  priority
-                />
-              </Link>
-              
-              <Link
-                href="/"
-                className="hidden sm:flex items-center gap-2 text-gray-600 hover:text-[#283583] transition-colors group"
-              >
-                <span className="font-medium">Voltar</span>
-              </Link>
-            </div>
-            
-            {/* Status Badge */}
-            <div className="flex items-center gap-3">
-              <span
-                className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${
-                  postWithRelations.published
-                    ? 'bg-linear-to-r from-green-100/50 to-emerald-100/50 text-[#5FAD56] border border-[#5FAD56]/30'
-                    : 'bg-linear-to-r from-amber-100/50 to-yellow-100/50 text-amber-700 border border-amber-300/30'
-                }`}
-              >
-                {postWithRelations.published ? 'Publicado' : 'Rascunho'}
-              </span>
-            </div>
-          </div>
-          
-          {/* Botão voltar mobile */}
-          <Link
-            href="/journalist/posts"
-            className="sm:hidden flex items-center gap-2 text-gray-600 hover:text-[#283583] transition-colors group mt-3"
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-sm font-medium">Voltar para postagens</span>
-          </Link>
-        </div>
-      </header>
+      <Header></Header>
 
       {/* Hero Section com imagem */}
       <div className="relative">
@@ -227,17 +180,6 @@ export const PostShowPage = async ({ slug }: PostShowPageProps) => {
             <p className="text-gray-600 text-sm font-medium">
               Última atualização: {new Date(postWithRelations.updatedAt).toLocaleDateString('pt-BR')}
             </p>
-            {
-              session?.user &&
-              <div className="flex gap-3">
-                <Link
-                  href={`/journalist/posts/${postWithRelations.slug}/edit`}
-                  className="px-6 py-2.5 bg-linear-to-r from-[#283583] to-[#3d4ba8] hover:from-[#1e2660] hover:to-[#283583] text-white font-semibold rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-[#283583]/25 hover:-translate-y-0.5"
-                >
-                  Editar Postagem
-                </Link>
-              </div>
-            }
           </div>
         </div>
       </div>
