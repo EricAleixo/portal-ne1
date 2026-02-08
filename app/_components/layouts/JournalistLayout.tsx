@@ -18,7 +18,7 @@ export const JournalistLayout = async ({children} : {children: ReactNode}) => {
         <JournalismHeader 
           user={{
             name: session.user.name,
-            avatarUrl: "https://github.com/ericAleixo.png",
+            avatarUrl: session.user.photoProfile ?? undefined,
             role: session.user.role
           }}
         />

@@ -1,5 +1,7 @@
 import { userRepository } from "../_db/_repositories/user.repository";
 import bcrypt from "bcrypt";
+import { s3Storage } from "../_infra/s3.storage";
+import { extractS3KeyFromUrl } from "../_infra/s3.utils";
 
 type UserRole = "ADMIN" | "JOURNALIST";
 
@@ -43,6 +45,7 @@ export class UserService {
             id: user.id,
             name: user.name,
             active: user.actived,
+            photoProfile: user.photoProfile,
             role: user.role
         };
     }
@@ -119,7 +122,31 @@ export class UserService {
             id: user.id,
             name: user.name,
             active: user.actived,
+            photoProfile: user.photoProfile,
             role: user.role
+        };
+    }
+
+    // UserService.ts
+    async updateProfileImage(userId: number, file: File) {
+        const user = await userRepository.findById(userId);
+        if (!user) {
+            throw new Error("USER NOT FOUND");
+        }
+
+        // upload
+        const imageUrl = await s3Storage.uploadProfileImage(userId, file);
+
+        // (opcional) apagar imagem antiga
+        if (user.photoProfile) await s3Storage.delete(extractS3KeyFromUrl(user.photoProfile));
+
+        const updatedUser = await userRepository.update(userId, {
+            photoProfile: imageUrl,
+        });
+
+        return {
+            id: updatedUser.id,
+            photoProfile: updatedUser.photoProfile,
         };
     }
 }

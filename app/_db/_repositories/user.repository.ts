@@ -31,7 +31,7 @@ export const userRepository = {
     },
 
     // UPDATE
-    update: async (id: number, data: Partial<{ name: string; passwordHash: string; role: UserRole }>) => {
+    update: async (id: number, data: Partial<{ name: string; passwordHash: string; role: UserRole, photoProfile: string }>) => {
         const [user] = await db.update(users)
             .set(data)
             .where(eq(users.id, id))

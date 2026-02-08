@@ -38,6 +38,7 @@ export const authOptions: NextAuthOptions = {
             id: user.id,
             name: user.name,
             role: user.role,
+            photoProfile: user.photoProfile,
             active: user.active,
           };
         } catch(e) {
@@ -53,24 +54,24 @@ export const authOptions: NextAuthOptions = {
         token.id = Number(user.id);
         token.role = (user as any).role;
         token.active = (user as any).active;
+        token.photoProfile = (user as any).photoProfile;
+        return token;
       }
 
-      // Verifica se o usuário ainda existe e está ativo a cada requisição
       if (token.id) {
         try {
           const existingUser = await userService.findById(token.id as number);
           
-          // Se o usuário não existir mais ou estiver desativado, invalida o token
           if (!existingUser || !existingUser.active) {
-            return {} as any; // Token vazio força logout
+            return {} as any;
           }
 
-          // Atualiza informações do token caso tenham mudado
           token.role = existingUser.role;
           token.active = existingUser.active;
+          token.photoProfile = existingUser.photoProfile;
         } catch (error) {
           console.error("Erro ao verificar usuário:", error);
-          return {} as any; // Token vazio força logout
+          return {} as any;
         }
       }
 
@@ -81,6 +82,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as number;
         session.user.role = token.role as string;
         session.user.active = token.active as boolean;
+        session.user.photoProfile = token.photoProfile as string | null;
       }
       return session;
     },
