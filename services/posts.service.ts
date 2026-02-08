@@ -1,5 +1,5 @@
 import { api } from './api';
-import { Post } from '@/app/_types/Post';
+import { Post, PostWithRelations } from '@/app/_types/Post';
 
 export const postService = {
   // Buscar todos os posts (com paginação)
@@ -12,6 +12,22 @@ export const postService = {
   findBySlug: async (slug: string): Promise<Post> => {
     const { data } = await api.get(`/posts/slug/${slug}`);
     return data.data;
+  },
+
+  // Pesquisar posts por título (público)
+  search: async (searchTerm: string, limit = 20, offset = 0): Promise<{
+    posts: PostWithRelations[];
+    total: number;
+    query: string;
+  }> => {
+    const { data } = await api.get(
+      `/posts/search?q=${encodeURIComponent(searchTerm)}&limit=${limit}&offset=${offset}`
+    );
+    return {
+      posts: data.data as PostWithRelations[],
+      total: data.total,
+      query: data.query,
+    };
   },
 
   // Criar novo post

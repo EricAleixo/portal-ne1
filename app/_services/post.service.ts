@@ -186,6 +186,50 @@ export class PostService {
   }
 
   /**
+   * Pesquisar posts por título
+   */
+  async searchByTitle(
+    searchTerm: string,
+    limit = 20,
+    offset = 0,
+  ): Promise<PostWithRelations[]> {
+    return postRepository.searchByTitle(searchTerm, limit, offset, true);
+  }
+
+  /**
+   * Pesquisar posts por título (admin vê todos, jornalista só os próprios)
+   */
+  async searchByTitleWithAuth(
+    searchTerm: string,
+    userId: number,
+    userRole: string,
+    limit = 20,
+    offset = 0,
+  ): Promise<PostWithRelations[]> {
+    const publishedOnly = userRole !== "ADMIN";
+    const results = await postRepository.searchByTitle(
+      searchTerm,
+      limit,
+      offset,
+      publishedOnly
+    );
+
+    // Se for jornalista, filtrar apenas os posts dele
+    if (userRole === "JOURNALIST") {
+      return results.filter(post => post.authorId === userId);
+    }
+
+    return results;
+  }
+
+  /**
+   * Contar resultados da pesquisa
+   */
+  async countSearchResults(searchTerm: string): Promise<number> {
+    return postRepository.countSearchResults(searchTerm, true);
+  }
+
+  /**
    * Atualizar post
    */
   async update(

@@ -254,6 +254,92 @@ export class PostRepository {
 
     return !!result;
   }
+
+  /* =========================
+   * SEARCH
+   * ========================= */
+  async searchByTitle(
+    searchTerm: string,
+    limit = 20,
+    offset = 0,
+    publishedOnly = true
+  ): Promise<PostWithRelations[]> {
+    // Retorna vazio se o termo tiver menos de 2 caracteres
+    if (searchTerm.length < 2) {
+      return [];
+    }
+
+    const searchPattern = `%${searchTerm}%`;
+    
+    const conditions = publishedOnly
+      ? and(
+          sql`LOWER(${posts.title}) LIKE LOWER(${searchPattern})`,
+          eq(posts.published, true)
+        )
+      : sql`LOWER(${posts.title}) LIKE LOWER(${searchPattern})`;
+
+    const result = await db
+      .select({
+        id: posts.id,
+        title: posts.title,
+        slug: posts.slug,
+        description: posts.description,
+        content: posts.content,
+        photoUrl: posts.photoUrl,
+        tags: posts.tags,
+        views: posts.views,
+        authorId: posts.authorId,
+        categoryId: posts.categoryId,
+        published: posts.published,
+        createdAt: posts.createdAt,
+        updatedAt: posts.updatedAt,
+        publishedAt: posts.publishedAt,
+        author: {
+          id: users.id,
+          name: users.name,
+          role: users.role,
+        },
+        category: {
+          id: categories.id,
+          name: categories.name,
+          color: categories.color,
+        },
+      })
+      .from(posts)
+      .innerJoin(users, eq(posts.authorId, users.id))
+      .innerJoin(categories, eq(posts.categoryId, categories.id))
+      .where(conditions)
+      .orderBy(desc(posts.publishedAt))
+      .limit(limit)
+      .offset(offset);
+
+    return result as PostWithRelations[];
+  }
+
+  async countSearchResults(
+    searchTerm: string,
+    publishedOnly = true
+  ): Promise<number> {
+    if (searchTerm.length < 2) {
+      return 0;
+    }
+
+    const searchPattern = `%${searchTerm}%`;
+    
+    const conditions = publishedOnly
+      ? and(
+          sql`LOWER(${posts.title}) LIKE LOWER(${searchPattern})`,
+          eq(posts.published, true)
+        )
+      : sql`LOWER(${posts.title}) LIKE LOWER(${searchPattern})`;
+
+    const [result] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(posts)
+      .where(conditions);
+
+    return result?.count || 0;
+  }
 }
 
 export const postRepository = new PostRepository();

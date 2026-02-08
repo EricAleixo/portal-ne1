@@ -3,6 +3,52 @@ import { getSessionOrThrow } from "../../_utils/session";
 import { postService } from "@/app/_services/post.service";
 import { updatePostSchema, passwordConfirmationSchema } from "@/app/_types/Post";
 
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    
+    const searchTerm = searchParams.get("q") || "";
+    const limit = parseInt(searchParams.get("limit") || "20");
+    const offset = parseInt(searchParams.get("offset") || "0");
+
+    // Validação básica
+    if (searchTerm.length < 2) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "O termo de busca deve ter no mínimo 2 caracteres",
+          data: [],
+          total: 0,
+        },
+        { status: 400 }
+      );
+    }
+
+    const [posts, total] = await Promise.all([
+      postService.searchByTitle(searchTerm, limit, offset),
+      postService.countSearchResults(searchTerm),
+    ]);
+
+    return NextResponse.json({
+      success: true,
+      data: posts,
+      total,
+      query: searchTerm,
+      limit,
+      offset,
+    });
+  } catch (error) {
+    console.error("Erro ao pesquisar posts:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Erro ao pesquisar posts",
+      },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PUT(
   req: NextRequest,
   { params }: { params: { slug: string } }

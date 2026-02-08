@@ -1,6 +1,7 @@
 import { categoryService } from "@/app/_services/categorie.service";
-import Link from "next/link"; // ✅ CORRETO
+import Link from "next/link";
 import Image from "next/image";
+import { SearchBarPost } from "../molecules/SearchBarPost";
 
 export const Header = async ({
   currentCategory,
@@ -8,11 +9,12 @@ export const Header = async ({
   currentCategory?: string;
 }) => {
   const allCategories = await categoryService.getAll();
-  
+
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b-4 border-[#C4161C] shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-        <div className="flex items-center justify-between">
+        {/* Linha Principal: Logo + Nav Desktop + Área Jornalista */}
+        <div className="flex items-center justify-between gap-4 mb-4">
           <Link
             href="/"
             className="shrink-0 transform hover:scale-105 transition-transform"
@@ -27,7 +29,8 @@ export const Header = async ({
             />
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
+          {/* Navegação Desktop */}
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
             <Link
               href="/"
               className="text-gray-900 hover:text-[#C4161C] font-black uppercase text-sm tracking-wide transition-all duration-300 relative group"
@@ -35,7 +38,7 @@ export const Header = async ({
               <span>Início</span>
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#C4161C] group-hover:w-full transition-all duration-300" />
             </Link>
-            
+
             {allCategories.slice(0, 5).map((category) => {
               const isActive = category.name === currentCategory;
               return (
@@ -59,16 +62,43 @@ export const Header = async ({
                 </Link>
               );
             })}
-
           </nav>
 
           <Link
             href="/journalist/"
-            className="px-6 py-3 bg-linear-to-r from-[#283583] to-[#3d4ba8] hover:from-[#1e2660] hover:to-[#283583] text-white font-black uppercase text-xs tracking-wide rounded-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+            className="hidden md:block px-6 py-3 bg-linear-to-r from-[#283583] to-[#3d4ba8] hover:from-[#1e2660] hover:to-[#283583] text-white font-black uppercase text-xs tracking-wide rounded-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
           >
             Área do Jornalista
           </Link>
         </div>
+
+        {/* Linha da Pesquisa */}
+        <div className="flex items-center justify-center">
+          <SearchBarPost/>
+        </div>
+
+        {/* Menu Mobile */}
+        <nav className="flex lg:hidden items-center gap-4 mt-4 overflow-x-auto pb-2 scrollbar-hide">
+          <Link
+            href="/"
+            className="text-gray-900 hover:text-[#C4161C] font-black uppercase text-xs tracking-wide transition-all whitespace-nowrap"
+          >
+            Início
+          </Link>
+          {allCategories.slice(0, 5).map((category) => {
+            const isActive = category.name === currentCategory;
+            return (
+              <Link
+                key={category.id}
+                href={`/categorias/${category.slug}`}
+                className="font-black uppercase text-xs tracking-wide transition-all whitespace-nowrap"
+                style={isActive ? { color: category.color } : {}}
+              >
+                {category.name}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
     </header>
   );
