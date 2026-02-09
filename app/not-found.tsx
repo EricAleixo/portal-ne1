@@ -1,14 +1,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Home, Search, Newspaper } from 'lucide-react';
-import { Header } from './_components/organisms/Header';
 
 export default async function NotFound() {
   
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex flex-col">
-      {/* Header Completo */}
-      <Header></Header>
 
       {/* Conteúdo Principal */}
       <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-20">

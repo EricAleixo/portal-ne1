@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { userService } from '@/app/_services/user.service';
 import { UserPlus, ArrowLeft, CircleAlert } from 'lucide-react';
 import Link from 'next/link';

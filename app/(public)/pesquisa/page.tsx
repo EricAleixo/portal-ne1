@@ -1,5 +1,7 @@
+export const dynamic = 'force-dynamic';
+
 import { Suspense } from "react";
-import { Search, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { SearchResultsContainer } from "@/app/_components/organisms/SearchResultsContainer";
 import { Header } from "@/app/_components/organisms/Header";
 

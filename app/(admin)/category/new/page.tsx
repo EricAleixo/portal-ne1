@@ -1,4 +1,5 @@
-import { Container } from "@/app/_components/layouts/Container";
+export const dynamic = 'force-dynamic';
+
 import { PageHeader } from "@/app/_components/molecules/PageHeader";
 import { CategoryForm } from "@/app/_components/organisms/CategoryForm";
 
