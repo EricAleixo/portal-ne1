@@ -7,6 +7,8 @@ import Image from "next/image";
 
 interface PostsTableProps {
   posts?: PostWithRelations[];
+  currentPage: number;
+  totalPages: number;
 }
 
 export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {

@@ -100,22 +100,6 @@ export const HomePage = async () => {
                 </div>
               </div>
             </div>
-
-            {/* Banner Newsletter - Modernizado */}
-            <div className="bg-linear-to-br from-[#283583] via-[#3d4ba8] to-[#283583] p-8 rounded-2xl shadow-2xl text-white relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-32 h-32 bg-[#5FAD56]/20 rounded-full blur-2xl" />
-              <div className="absolute bottom-0 right-0 w-32 h-32 bg-[#F9C74F]/20 rounded-full blur-2xl" />
-              
-              <div className="relative">
-                <h3 className="text-2xl font-black mb-3 uppercase tracking-tight">Newsletter</h3>
-                <p className="text-sm text-white/90 mb-5 font-medium">
-                  Receba as principais notícias do Nordeste direto no seu email
-                </p>
-                <button className="w-full bg-white text-[#283583] font-black py-3 px-6 rounded-xl hover:bg-gray-100 transition-all duration-300 hover:scale-105 uppercase text-sm tracking-wide shadow-lg">
-                  Inscrever-se
-                </button>
-              </div>
-            </div>
           </aside>
         </div>
 
@@ -523,13 +507,6 @@ function EmptyState({ allCategories }: { allCategories: Array<{ id: number; name
             Em breve você encontrará aqui as melhores notícias do Nordeste. 
             Estamos preparando conteúdo de qualidade para você!
           </p>
-
-          <Link
-            href="/journalist/posts"
-            className="inline-block px-10 py-5 bg-linear-to-r from-[#283583] to-[#3d4ba8] hover:from-[#1e2660] hover:to-[#283583] text-white font-black uppercase tracking-wide transition-all duration-300 hover:shadow-xl hover:scale-105 rounded-xl"
-          >
-            Área do Jornalista
-          </Link>
         </div>
       </div>
 

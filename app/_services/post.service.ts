@@ -18,9 +18,7 @@ export class PostService {
    */
   private extractS3Key(url: string): string | null {
     const bucket = process.env.AWS_S3_BUCKET;
-    const pattern = new RegExp(
-      `https://${bucket}\\.s3\\.amazonaws\\.com/(.+)`,
-    );
+    const pattern = new RegExp(`https://${bucket}\\.s3\\.amazonaws\\.com/(.+)`);
     const match = url.match(pattern);
     return match ? match[1] : null;
   }
@@ -181,18 +179,24 @@ export class PostService {
   async findAll(
     userId: number,
     userRole: string,
-    limit = 20,
+    limit = 10,
     offset = 0,
-  ): Promise<PostWithRelations[]> {
+  ): Promise<{ posts: PostWithRelations[]; total: number }> {
+    let posts: PostWithRelations[];
+    let total: number;
+
     if (userRole === "ADMIN") {
-      return postRepository.findAll(limit, offset);
+      posts = await postRepository.findAll(limit, offset);
+      total = await postRepository.countAll();
+    } else if (userId === undefined || userId === null) {
+      posts = [];
+      total = 0;
+    } else {
+      posts = await postRepository.findAll(limit, offset, userId);
+      total = await postRepository.countAll(userId);
     }
 
-    if (userId === undefined || userId === null) {
-      return [];
-    }
-
-    return postRepository.findAll(limit, offset, userId);
+    return { posts, total };
   }
 
   /**

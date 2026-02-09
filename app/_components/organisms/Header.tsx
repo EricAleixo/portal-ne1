@@ -149,7 +149,7 @@ export const Header = async ({
             {/* Área do Jornalista - Apenas para usuários logados */}
             {session?.user && (
               <Link
-                href="/journalist/"
+                href="/journalist/posts"
                 className="hidden md:block px-6 py-3 bg-linear-to-r from-[#283583] to-[#3d4ba8] hover:from-[#1e2660] hover:to-[#283583] text-white font-black uppercase text-xs tracking-wide rounded-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
               >
                 Área do Jornalista
@@ -213,7 +213,7 @@ export const Header = async ({
         {session?.user && (
           <div className="md:hidden mt-3 pt-3 border-t border-gray-200">
             <Link
-              href="/journalist/"
+              href="/journalist/posts"
               className="block w-full text-center px-6 py-3 bg-linear-to-r from-[#283583] to-[#3d4ba8] hover:from-[#1e2660] hover:to-[#283583] text-white font-black uppercase text-xs tracking-wide rounded-lg transition-all duration-300 active:scale-95"
             >
               Área do Jornalista

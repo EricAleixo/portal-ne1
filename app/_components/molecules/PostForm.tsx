@@ -727,7 +727,7 @@ export const PostForm: React.FC<PostFormProps> = ({
               )}
             </button>
             <Link
-              href={"/journalist"}
+              href={"/journalist/posts"}
               onClick={handleCancel}
               className="flex-1 sm:flex-none bg-white/50 backdrop-blur-sm border border-gray-300/60 hover:bg-gray-50 text-gray-700 font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:shadow-md flex items-center justify-center gap-2"
             >

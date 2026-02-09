@@ -26,7 +26,7 @@ export const LoginPage = () => {
     try {
       const result = await signIn("credentials", {
         ...data,
-        callbackUrl: "/journalist",
+        callbackUrl: "/journalist/posts",
         redirect: false,
       });
 

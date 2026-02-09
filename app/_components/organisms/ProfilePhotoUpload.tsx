@@ -22,6 +22,7 @@ export const ProfilePhotoUpload = ({
   const [preview, setPreview] = useState(initialPhoto);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   // Função para pegar a primeira letra do nome
@@ -52,17 +53,35 @@ export const ProfilePhotoUpload = ({
     setImageSrc(URL.createObjectURL(file));
   };
 
+  const onCropComplete = (croppedArea: any, croppedAreaPixels: any) => {
+    console.log('Crop completo - croppedArea:', croppedArea);
+    console.log('Crop completo - croppedAreaPixels:', croppedAreaPixels);
+    setCroppedAreaPixels(croppedAreaPixels);
+  };
+
   const handleSave = async () => {
-    if (!imageSrc) return;
+    if (!imageSrc || !croppedAreaPixels) {
+      console.log('Faltando dados:', { imageSrc: !!imageSrc, croppedAreaPixels });
+      return;
+    }
+    
+    console.log('Salvando com croppedAreaPixels:', croppedAreaPixels);
     setLoading(true);
     try {
-      const croppedFile = await getCroppedImage(imageSrc, crop, zoom);
+      const croppedFile = await getCroppedImage(imageSrc, croppedAreaPixels);
+      console.log('Arquivo cortado criado:', croppedFile);
+      
       const result = await userServiceClient.updateProfileImage(
         userId,
         croppedFile
       );
+      console.log('Resultado do upload:', result);
+      
       setPreview(result.photoProfile);
       setImageSrc(null);
+      setCroppedAreaPixels(null);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
     } catch (e) {
       console.error("Erro ao atualizar foto", e);
     } finally {
@@ -74,6 +93,7 @@ export const ProfilePhotoUpload = ({
     setImageSrc(null);
     setCrop({ x: 0, y: 0 });
     setZoom(1);
+    setCroppedAreaPixels(null);
   };
 
   return (
@@ -159,6 +179,7 @@ export const ProfilePhotoUpload = ({
                   aspect={1}
                   onCropChange={setCrop}
                   onZoomChange={setZoom}
+                  onCropComplete={onCropComplete}
                   cropShape="round"
                   showGrid={false}
                 />

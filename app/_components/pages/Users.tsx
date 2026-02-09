@@ -31,7 +31,7 @@ export const UsersPage = async () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Link
-                  href="/journalist"
+                  href="/journalist/posts"
                   className="p-2.5 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all duration-200 hover:-translate-x-0.5 group"
                 >
                   <ArrowLeft className="w-4 h-4 text-slate-700 group-hover:text-slate-900" />

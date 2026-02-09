@@ -19,7 +19,7 @@ export const Sidebar = ({type}: {type: string}) => {
             {/* Navigation */}
             <nav className="flex flex-col px-4 gap-4">
                 <Link
-                    href={"/journalist"}
+                    href={"/journalist/posts"}
                     className="relative flex items-center gap-4 px-6 py-4 text-[#283583] bg-linear-to-r from-blue-50/60 to-indigo-50/40 backdrop-blur-sm rounded-xl font-semibold transition-all hover:from-blue-100/70 hover:to-indigo-100/50 group shadow-md border border-blue-200/30"
                 >
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-linear-to-b from-[#C4161C] to-[#e01b22] rounded-r-full shadow-lg"></div>

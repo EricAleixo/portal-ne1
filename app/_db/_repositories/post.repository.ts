@@ -1,6 +1,6 @@
 import { db } from "..";
 import { posts, users, categories } from "../schema";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, count } from "drizzle-orm";
 import {
   CreatePostDTO,
   UpdatePostDTO,
@@ -15,7 +15,7 @@ export class PostRepository {
   async create(
     data: CreatePostDTO,
     authorId: number,
-    slug: string
+    slug: string,
   ): Promise<Post> {
     const values: any = {
       title: data.title,
@@ -50,6 +50,18 @@ export class PostRepository {
     return post;
   }
 
+  async countAll(userId?: number): Promise<number> {
+    const query = userId
+      ? db
+          .select({ count: count() })
+          .from(posts)
+          .where(eq(posts.authorId, userId))
+      : db.select({ count: count() }).from(posts);
+
+    const result = await query;
+    return result[0]?.count || 0;
+  }
+
   async findBySlug(slug: string): Promise<Post | undefined> {
     const [post] = await db
       .select()
@@ -61,7 +73,7 @@ export class PostRepository {
   }
 
   async findByIdWithRelations(
-    id: number
+    id: number,
   ): Promise<PostWithRelations | undefined> {
     const [post] = await db
       .select({
@@ -102,10 +114,7 @@ export class PostRepository {
   /* =========================
    * LISTS
    * ========================= */
-  async findAllPublished(
-    limit = 20,
-    offset = 0
-  ): Promise<PostWithRelations[]> {
+  async findAllPublished(limit = 20, offset = 0): Promise<PostWithRelations[]> {
     const result = await db
       .select({
         id: posts.id,
@@ -145,62 +154,55 @@ export class PostRepository {
   }
 
   async findAll(
-  limit = 20,
-  offset = 0,
-  authorId?: number
-): Promise<PostWithRelations[]> {
+    limit = 20,
+    offset = 0,
+    authorId?: number,
+  ): Promise<PostWithRelations[]> {
+    const condition =
+      authorId !== undefined ? eq(posts.authorId, authorId) : undefined;
 
-  const condition =
-    authorId !== undefined
-      ? eq(posts.authorId, authorId)
-      : undefined;
+    const result = await db
+      .select({
+        id: posts.id,
+        title: posts.title,
+        slug: posts.slug,
+        description: posts.description,
+        content: posts.content,
+        photoUrl: posts.photoUrl,
+        tags: posts.tags,
+        views: posts.views,
+        authorId: posts.authorId,
+        categoryId: posts.categoryId,
+        published: posts.published,
+        createdAt: posts.createdAt,
+        updatedAt: posts.updatedAt,
+        publishedAt: posts.publishedAt,
+        author: {
+          id: users.id,
+          name: users.name,
+          role: users.role,
+        },
+        category: {
+          id: categories.id,
+          name: categories.name,
+          color: categories.color,
+        },
+      })
+      .from(posts)
+      .innerJoin(users, eq(posts.authorId, users.id))
+      .innerJoin(categories, eq(posts.categoryId, categories.id))
+      .where(condition)
+      .orderBy(desc(posts.createdAt))
+      .limit(limit)
+      .offset(offset);
 
-  const result = await db
-    .select({
-      id: posts.id,
-      title: posts.title,
-      slug: posts.slug,
-      description: posts.description,
-      content: posts.content,
-      photoUrl: posts.photoUrl,
-      tags: posts.tags,
-      views: posts.views,
-      authorId: posts.authorId,
-      categoryId: posts.categoryId,
-      published: posts.published,
-      createdAt: posts.createdAt,
-      updatedAt: posts.updatedAt,
-      publishedAt: posts.publishedAt,
-      author: {
-        id: users.id,
-        name: users.name,
-        role: users.role,
-      },
-      category: {
-        id: categories.id,
-        name: categories.name,
-        color: categories.color,
-      },
-    })
-    .from(posts)
-    .innerJoin(users, eq(posts.authorId, users.id))
-    .innerJoin(categories, eq(posts.categoryId, categories.id))
-    .where(condition)
-    .orderBy(desc(posts.createdAt))
-    .limit(limit)
-    .offset(offset);
-
-  return result as PostWithRelations[];
-}
-
+    return result as PostWithRelations[];
+  }
 
   /* =========================
    * UPDATE / DELETE
    * ========================= */
-  async update(
-    id: number,
-    data: Partial<UpdatePostDTO>
-  ): Promise<Post> {
+  async update(id: number, data: Partial<UpdatePostDTO>): Promise<Post> {
     const updateData: any = {
       ...data,
       updatedAt: new Date(),
@@ -238,15 +240,9 @@ export class PostRepository {
   /* =========================
    * SLUG
    * ========================= */
-  async slugExists(
-    slug: string,
-    excludeId?: number
-  ): Promise<boolean> {
+  async slugExists(slug: string, excludeId?: number): Promise<boolean> {
     const condition = excludeId
-      ? and(
-          eq(posts.slug, slug),
-          sql`${posts.id} != ${excludeId}`
-        )
+      ? and(eq(posts.slug, slug), sql`${posts.id} != ${excludeId}`)
       : eq(posts.slug, slug);
 
     const [result] = await db
@@ -265,7 +261,7 @@ export class PostRepository {
     searchTerm: string,
     limit = 20,
     offset = 0,
-    publishedOnly = true
+    publishedOnly = true,
   ): Promise<PostWithRelations[]> {
     // Retorna vazio se o termo tiver menos de 2 caracteres
     if (searchTerm.length < 2) {
@@ -273,11 +269,11 @@ export class PostRepository {
     }
 
     const searchPattern = `%${searchTerm}%`;
-    
+
     const conditions = publishedOnly
       ? and(
           sql`LOWER(${posts.title}) LIKE LOWER(${searchPattern})`,
-          eq(posts.published, true)
+          eq(posts.published, true),
         )
       : sql`LOWER(${posts.title}) LIKE LOWER(${searchPattern})`;
 
@@ -321,18 +317,18 @@ export class PostRepository {
 
   async countSearchResults(
     searchTerm: string,
-    publishedOnly = true
+    publishedOnly = true,
   ): Promise<number> {
     if (searchTerm.length < 2) {
       return 0;
     }
 
     const searchPattern = `%${searchTerm}%`;
-    
+
     const conditions = publishedOnly
       ? and(
           sql`LOWER(${posts.title}) LIKE LOWER(${searchPattern})`,
-          eq(posts.published, true)
+          eq(posts.published, true),
         )
       : sql`LOWER(${posts.title}) LIKE LOWER(${searchPattern})`;
 
