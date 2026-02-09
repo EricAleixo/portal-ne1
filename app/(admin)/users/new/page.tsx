@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { UserForm } from '@/app/_components/organisms/UserForm';
-import toast from 'react-hot-toast';
 
 export default function NewUserPage() {
   async function createUser(formData: FormData) {
@@ -26,12 +25,12 @@ export default function NewUserPage() {
 
     try {
       await userService.create(name, password);
-      revalidatePath('/users');
-      redirect('/users');
     } catch (error) {
-      toast.error('Erro ao criar usuário')
       console.error(error)
     }
+    
+    revalidatePath('/users');
+    redirect('/users');
   }
 
   return (

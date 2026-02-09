@@ -3,7 +3,6 @@ import { Users, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { revalidatePath } from 'next/cache';
 import { UserList } from '../organisms/UserList';
-import { JournalistLayout } from '../layouts/JournalistLayout';
 
 export const UsersPage = async () => {
   const users = await userService.findAll();
