@@ -6,12 +6,12 @@ import { useRouter } from "next/navigation";
 import { postService } from "@/services/posts.service";
 
 interface DeletePostButtonProps {
-  postId: number;
+  postSlug: string;
   postTitle: string;
 }
 
 export const DeletePostButton: React.FC<DeletePostButtonProps> = ({
-  postId,
+  postSlug,
   postTitle,
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -26,17 +26,11 @@ export const DeletePostButton: React.FC<DeletePostButtonProps> = ({
       return;
     }
 
-    // Validação extra do ID
-    if (!postId || isNaN(Number(postId))) {
-      setError("ID do post inválido");
-      return;
-    }
-
     setIsDeleting(true);
     setError("");
 
     try {
-      await postService.delete(Number(postId), password);
+      await postService.delete(postSlug, password);
       setShowModal(false);
       router.refresh();
     } catch (err: any) {

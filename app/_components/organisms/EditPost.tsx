@@ -37,7 +37,7 @@ export const EditPost: React.FC<EditPostProps> = ({
     try {
       await postService.update(post.slug, submitData);
       toast.success(`${post.title} atualizado com sucesso!`);
-      setTimeout(() => router.push("/journalist"), 1500);
+      setTimeout(() => router.push("/journalist/posts"), 1500);
     } catch (error) {
       toast.error("Senha inválida!");
     }

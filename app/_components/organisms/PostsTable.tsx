@@ -221,7 +221,7 @@ export const PostsTable: React.FC<PostsTableProps> = ({
                     >
                       <Edit2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
                     </Link>
-                    <DeletePostButton postId={post.id} postTitle={post.title} />
+                    <DeletePostButton postSlug={post.slug} postTitle={post.title} />
                   </div>
                 </td>
               </tr>
@@ -303,7 +303,7 @@ export const PostsTable: React.FC<PostsTableProps> = ({
                 >
                   <Edit2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 </Link>
-                <DeletePostButton postId={post.id} postTitle={post.title} />
+                <DeletePostButton postSlug={post.slug} postTitle={post.title} />
               </div>
             </div>
           </article>

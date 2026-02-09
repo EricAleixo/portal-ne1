@@ -39,8 +39,8 @@ export const postService = {
   },
 
   // Deletar por ID
-  delete: async (id: number, password: string) => {
-    const { data } = await api.delete(`/posts/${id}`, {
+  delete: async (slug: string, password: string) => {
+    const { data } = await api.delete(`/posts/${slug}`, {
       data: { password }
     });
     return data;
