@@ -7,13 +7,9 @@ on:
 
 jobs:
   deploy:
-    name: deploy to ec2
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout (apenas para o workflow existir)
-        uses: actions/checkout@v4
-
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -23,25 +19,14 @@ jobs:
           script: |
             set -e
 
-            echo "➡️ Entrando no projeto"
             cd ${{ secrets.EC2_PROJECT_PATH }}
 
-            echo "📥 Git pull"
             git pull origin main
 
-            echo "🛑 Derrubando containers"
             docker-compose down
-
-            echo "🧹 Limpando lixo do Docker"
             docker system prune -af
-
-            echo "🚀 Subindo containers"
             docker-compose up -d --build
 
-            echo "🧬 Gerando migrations (Drizzle)"
-            docker-compose exec -T portal npx drizzle-kit generate
-
-            echo "📦 Rodando migrations"
             docker-compose exec -T portal npx drizzle-kit migrate
 
             echo "✅ Deploy finalizado"
