@@ -9,8 +9,6 @@ const ADMIN_PASSWORD = "12345678";
 const seed = async () => {
   console.log("🌱 Iniciando seed (ADMIN only)...");
 
-  await db.delete(users);
-
   const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
 
   const [admin] = await db

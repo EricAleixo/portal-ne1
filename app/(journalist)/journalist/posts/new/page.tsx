@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { JournalistLayout } from "@/app/_components/layouts/JournalistLayout";
 import { CreatePost } from "@/app/_components/organisms/CreatePost";
 import { categoryService } from "@/app/_services/categorie.service";

@@ -8,7 +8,6 @@ import { getSessionOrThrow } from "@/app/api/_utils/session";
 
 export const JournalistPostagens = async () => {
   const session = await getSessionOrThrow();
-  console.log(session)
 
   if (!session) redirect("/");
 

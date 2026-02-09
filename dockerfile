@@ -1,4 +1,3 @@
-
 FROM node:24-alpine AS builder
 
 WORKDIR /app
@@ -26,6 +25,10 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
+
+# 🔥🔥🔥 ISSO É O QUE FALTAVA 🔥🔥🔥
+RUN mkdir -p /app/.next/cache/images \
+ && chown -R nextjs:nodejs /app/.next
 
 USER nextjs
 
