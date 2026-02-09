@@ -4,9 +4,17 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   _: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> } // FORÇADO como Promise
 ) {
-  const id = Number(params.id);
+  const resolvedParams = await params; // agora realmente é Promise
+  const id = Number(resolvedParams.id);
+
+  if (isNaN(id)) {
+    return NextResponse.json(
+      { success: false, message: "ID inválido" },
+      { status: 400 }
+    );
+  }
 
   const post = await postService.findById(id);
   if (!post) {

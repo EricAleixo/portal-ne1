@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import { postService } from "@/app/_services/post.service";
 
 interface Params {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export async function POST(_: Request, { params }: Params) {
-  const { slug } = await params;
+  const resolvedParams = await params;
+  const { slug } = resolvedParams;
 
   if (!slug) {
     return NextResponse.json(

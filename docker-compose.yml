@@ -1,15 +1,9 @@
 services:
-  db:
+  portal:
+    build: .
+    container_name: portal
+    restart: unless-stopped
     ports:
-      - "5432:5432"
-    restart: always
-    image: postgres:15
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=portal-ne1
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-
-volumes:
-  postgres-data:
+      - "80:3000"
+    env_file:
+      - .env

@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { userService } from '@/app/_services/user.service';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>; // FORÇADO como Promise
 }
 
 export async function GET(
@@ -12,7 +12,8 @@ export async function GET(
   { params }: RouteParams
 ) {
   try {
-    const id = parseInt(params.id);
+    const resolvedParams = await params;
+    const id = parseInt(resolvedParams.id);
 
     if (isNaN(id)) {
       return NextResponse.json(
@@ -45,7 +46,8 @@ export async function PUT(
   { params }: RouteParams
 ) {
   try {
-    const id = parseInt(params.id);
+    const resolvedParams = await params;
+    const id = parseInt(resolvedParams.id);
 
     if (isNaN(id)) {
       return NextResponse.json(
@@ -57,7 +59,6 @@ export async function PUT(
     const body = await request.json();
     const { name, password, role } = body;
 
-    // Validação
     if (password && password.length < 6) {
       return NextResponse.json(
         { error: 'A senha deve ter pelo menos 6 caracteres' },
@@ -73,7 +74,6 @@ export async function PUT(
     }
 
     const updateData: { name?: string; password?: string; role?: 'ADMIN' | 'JOURNALIST' } = {};
-    
     if (name) updateData.name = name;
     if (password) updateData.password = password;
     if (role) updateData.role = role;
@@ -111,7 +111,8 @@ export async function DELETE(
   { params }: RouteParams
 ) {
   try {
-    const id = parseInt(params.id);
+    const resolvedParams = await params;
+    const id = parseInt(resolvedParams.id);
 
     if (isNaN(id)) {
       return NextResponse.json(

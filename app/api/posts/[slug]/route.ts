@@ -6,12 +6,11 @@ import { updatePostSchema, passwordConfirmationSchema } from "@/app/_types/Post"
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    
+
     const searchTerm = searchParams.get("q") || "";
     const limit = parseInt(searchParams.get("limit") || "20");
     const offset = parseInt(searchParams.get("offset") || "0");
 
-    // Validação básica
     if (searchTerm.length < 2) {
       return NextResponse.json(
         {
@@ -51,11 +50,12 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> } // FORÇADO como Promise
 ) {
   try {
     const session = await getSessionOrThrow();
-    const { slug } = await params;
+    const resolvedParams = await params; // agora realmente é Promise
+    const { slug } = resolvedParams;
 
     if (!slug) {
       return NextResponse.json(
@@ -104,11 +104,12 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> } // FORÇADO como Promise
 ) {
   try {
     const session = await getSessionOrThrow();
-    const { slug } = await params;
+    const resolvedParams = await params; // Promise resolvida
+    const { slug } = resolvedParams;
 
     if (!slug) {
       return NextResponse.json(
