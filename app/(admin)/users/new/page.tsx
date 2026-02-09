@@ -25,9 +25,10 @@ export default function NewUserPage() {
     try {
       await userService.create(name, password);
       revalidatePath('/users');
-      redirect('/users');
     } catch (error) {
       console.log(error)
+    }finally{
+      redirect('/users');
     }
 
   }
