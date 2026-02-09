@@ -28,7 +28,6 @@ class CategoryService {
   }
 
   async create(data: CreateCategoryDTO): Promise<Category> {
-    console.log('API_URL:', process.env.API_URL);
     const response = await api.post<Category>("/category", data);
     return response.data;
   }
