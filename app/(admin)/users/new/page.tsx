@@ -13,7 +13,6 @@ export default function NewUserPage() {
 
     const name = formData.get('name') as string;
     const password = formData.get('password') as string;
-    const role = formData.get('role') as 'ADMIN' | 'JOURNALIST';
 
     if (!name || !password) {
       throw new Error('Nome e senha são obrigatórios');
@@ -25,12 +24,12 @@ export default function NewUserPage() {
 
     try {
       await userService.create(name, password);
+      revalidatePath('/users');
+      redirect('/users');
     } catch (error) {
-      console.error(error)
+      console.log(error)
     }
-    
-    revalidatePath('/users');
-    redirect('/users');
+
   }
 
   return (
