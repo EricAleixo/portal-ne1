@@ -69,8 +69,8 @@ export const authOptions: NextAuthOptions = {
           token.role = existingUser.role;
           token.active = existingUser.active;
           token.photoProfile = existingUser.photoProfile;
-        } catch (error) {
-          console.error("Erro ao verificar usuário:", error);
+        } catch (error: any) {
+          console.error("Erro ao verificar usuário:", error.message);
           return {} as any;
         }
       }

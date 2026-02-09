@@ -1,4 +1,17 @@
 services:
+  db:
+    image: postgres:15
+    container_name: portal-db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: portal-ne1
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
   portal:
     build: .
     container_name: portal
@@ -7,3 +20,13 @@ services:
       - "3000:3000"
     env_file:
       - .env
+    depends_on:
+      - db
+    command: >
+      sh -c "
+        npx drizzle-kit migrate &&
+        npm run start
+      "
+
+volumes:
+  postgres-data:
