@@ -1,0 +1,42 @@
+name: Push-Portal
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: deploy to ec2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (apenas para o workflow existir)
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+
+            echo "➡️ Entrando no projeto"
+            cd ${{ secrets.EC2_PROJECT_PATH }}
+
+            echo "Git pull"
+            git pull origin main
+
+            echo "Subindo containers"
+            docker-compose down
+            docker-compose up -d --build
+
+            echo "Gerando migrations (Drizzle)"
+            docker-compose exec -T portal npx drizzle-kit generate
+
+            echo "Rodando migrations"
+            docker-compose exec -T portal npx drizzle-kit migrate
+
+            echo "✅ Deploy finalizado"
