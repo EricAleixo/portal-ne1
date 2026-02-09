@@ -1,50 +1,48 @@
 import { eq } from "drizzle-orm";
 import { db } from ".";
-import { users, categories, posts } from "./schema";
+import { users } from "./schema";
+import "dotenv/config";
+import bcrypt from "bcrypt";
 
+const seedAdmin = async () => {
+  console.log("🌱 Verificando usuário administrador...");
 
-const seedPosts = async () => {
-  console.log("🌱 Iniciando seed de 100 posts...");
+  const adminName = process.env.ADMIN_NAME;
+  const adminPass = process.env.ADMIN_PASSWORD;
 
-  // Buscar um usuário ADMIN corretamente
-  const [adminUser] = await db
-    .select()
-    .from(users)
-    .where(eq(users.role, "ADMIN"));
-
-  // Buscar a primeira categoria
-  const [firstCategory] = await db.select().from(categories);
-
-  if (!adminUser || !firstCategory) {
-    console.error("❌ Usuário ADMIN ou categoria não encontrados.");
+  if (!adminName || !adminPass) {
+    console.error("❌ Erro: ADMIN_NAME ou ADMIN_PASSWORD não definidos no .env");
     process.exit(1);
   }
 
-  const postsData = Array.from({ length: 100 }).map((_, i) => ({
-    title: `Post ${i + 1}`,
-    slug: `post-${i + 1}`,
-    description: `Descrição do post ${i + 1}`,
-    content: `Conteúdo do post ${i + 1}. Aqui você pode colocar qualquer texto.`,
-    photoUrl: `https://picsum.photos/seed/${i + 1}/640/480`,
-    tags: ["tag1", "tag2"],
-    views: 0,
-    authorId: adminUser.id,
-    categoryId: firstCategory.id,
-    published: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    publishedAt: new Date(),
-  }));
+  // 1. Verificar se o admin já existe pelo nome
+  const [existingAdmin] = await db
+    .select()
+    .from(users)
+    .where(eq(users.name, adminName));
 
-  const insertedPosts = await db.insert(posts).values(postsData).returning();
+  if (existingAdmin) {
+    console.log(`ℹ️ Usuário "${adminName}" já existe. Pulando criação.`);
+  } else {
+    // 2. Gerar o hash da senha
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(adminPass, salt);
 
-  console.log(`📝 ${insertedPosts.length} posts criados com sucesso!`);
-  console.log("✅ Seed de posts finalizado");
+    // 3. Inserir no banco
+    await db.insert(users).values({
+      name: adminName,
+      passwordHash: passwordHash,
+      role: "ADMIN", // Garante que o primeiro usuário terá acesso total
+      actived: true,
+    });
+
+    console.log(`✅ Admin "${adminName}" criado com sucesso!`);
+  }
 
   process.exit(0);
 };
 
-seedPosts().catch((err) => {
-  console.error("❌ Erro no seed de posts:", err);
+seedAdmin().catch((err) => {
+  console.error("❌ Erro no seed de admin:", err);
   process.exit(1);
 });
