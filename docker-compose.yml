@@ -22,11 +22,8 @@ services:
       - .env
     depends_on:
       - db
-    command: >
-      sh -c "
-        pnpm drizzle-kit migrate --config=drizzle.config.ts &&
-        pnpm start
-      "
+    # 🔥 NÃO rodar migração no boot
+    # CMD já vem do Dockerfile (next start)
 
 volumes:
   postgres-data:
