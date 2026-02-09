@@ -1,8 +1,8 @@
 import axios from 'axios';
-
+import "dotenv/config"
 
 export const api = axios.create({
-  baseURL: 'http://52.23.184.237:3000/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
   headers: {
     'Content-Type': 'application/json',
   },
