@@ -9,21 +9,24 @@ button {
    ========================= */
 
 h1 {
-  font-size: 2.25rem; /* 36px */
+  font-size: 2.25rem;
+  /* 36px */
   line-height: 2.5rem;
   font-weight: 800;
   margin: 1.5rem 0 1rem;
 }
 
 h2 {
-  font-size: 1.875rem; /* 30px */
+  font-size: 1.875rem;
+  /* 30px */
   line-height: 2.25rem;
   font-weight: 700;
   margin: 1.25rem 0 0.75rem;
 }
 
 h3 {
-  font-size: 1.5rem; /* 24px */
+  font-size: 1.5rem;
+  /* 24px */
   line-height: 2rem;
   font-weight: 600;
   margin: 1rem 0 0.5rem;
@@ -378,10 +381,12 @@ code {
 
 /* Animação de loading para upload */
 @keyframes pulse {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -410,4 +415,32 @@ code {
   display: block;
   font-size: 1rem;
   font-weight: 500;
+}
+
+/* Smooth scrolling para mobile */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Scrollbar customizada para dropdown */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
 }
