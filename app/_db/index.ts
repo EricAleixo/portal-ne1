@@ -4,7 +4,10 @@ import * as schema from "./schema";
 import "dotenv/config"
 
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL!
+    connectionString: process.env.DATABASE_URL!,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 export const db = drizzle(pool, { schema });
