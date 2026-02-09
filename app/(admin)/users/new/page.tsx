@@ -1,36 +1,30 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-import { userService } from '@/app/_services/user.service';
-import { UserPlus, ArrowLeft, CircleAlert } from 'lucide-react';
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { revalidatePath } from 'next/cache';
-import { UserForm } from '@/app/_components/organisms/UserForm';
+import { userService } from "@/app/_services/user.service";
+import { UserPlus, ArrowLeft, CircleAlert } from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { UserForm } from "@/app/_components/organisms/UserForm";
 
 export default function NewUserPage() {
   async function createUser(formData: FormData) {
-    'use server';
+    "use server";
 
-    const name = formData.get('name') as string;
-    const password = formData.get('password') as string;
+    const name = formData.get("name") as string;
+    const password = formData.get("password") as string;
 
     if (!name || !password) {
-      throw new Error('Nome e senha são obrigatórios');
+      throw new Error("Nome e senha são obrigatórios");
     }
 
     if (password.length < 6) {
-      throw new Error('A senha deve ter pelo menos 6 caracteres');
+      throw new Error("A senha deve ter pelo menos 6 caracteres");
     }
 
-    try {
-      await userService.create(name, password);
-      revalidatePath('/users');
-    } catch (error) {
-      console.log(error)
-    }finally{
-      redirect('/users');
-    }
-
+    await userService.create(name, password);
+    revalidatePath("/users");
+    redirect("/users");
   }
 
   return (
