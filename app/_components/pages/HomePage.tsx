@@ -1,7 +1,7 @@
 import { postService } from '@/app/_services/post.service';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Calendar, Eye, ArrowRight, Clock, Newspaper } from 'lucide-react';
+import { Calendar, Eye, ArrowRight, Clock, Newspaper, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
 import { PostWithRelations } from '@/app/_types/Post';
 import { categoryService } from '@/app/_services/categorie.service';
 import { Header } from '../organisms/Header';
@@ -77,6 +77,7 @@ export const HomePage = async () => {
 
           {/* Em Alta - 1/3 - Sidebar Estilo Editorial */}
           <aside className="space-y-6">
+            {/* Mais Lidas */}
             <div className="bg-linear-to-br from-[#C4161C] via-[#e01b22] to-[#C4161C] p-6 rounded-2xl shadow-2xl relative overflow-hidden">
               {/* Efeito de brilho */}
               <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
@@ -87,7 +88,7 @@ export const HomePage = async () => {
                   Mais Lidas
                 </h2>
                 
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {trendingPosts.length > 0 ? (
                     trendingPosts.map((post, index) => (
                       <TrendingCard key={post.id} post={post} rank={index + 1} />
@@ -100,6 +101,9 @@ export const HomePage = async () => {
                 </div>
               </div>
             </div>
+
+            {/* Widgets de Métricas */}
+            <MetricsWidgets />
           </aside>
         </div>
 
@@ -343,24 +347,56 @@ function TrendingCard({ post, rank }: { post: PostWithRelations; rank: number })
   return (
     <Link
       href={`/posts/${post.slug}`}
-      className="group flex gap-3 p-4 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 rounded-xl border border-white/20"
+      className="group bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 rounded-xl border border-white/20 overflow-hidden"
     >
-      {/* Rank */}
-      <div className="shrink-0">
-        <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[#F9C74F] to-[#f4a93f] flex items-center justify-center shadow-lg border-2 border-white/50">
-          <span className="text-2xl font-black text-[#283583]">{rank}</span>
+      <div className="flex gap-3 p-3">
+        {/* Rank Badge + Image Container */}
+        <div className="shrink-0 space-y-2">
+          {/* Rank Badge */}
+          <div className="w-20 h-8 rounded-lg bg-linear-to-br from-[#F9C74F] to-[#f4a93f] flex items-center justify-center shadow-lg border border-white/50">
+            <span className="text-lg font-black text-[#283583]">#{rank}</span>
+          </div>
+          
+          {/* Image */}
+          <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-white/5">
+            {post.photoUrl ? (
+              <Image
+                width={200}
+                height={200}
+                src={post.photoUrl}
+                alt={post.title}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+            ) : (
+              <div className="w-full h-full bg-white/10 flex items-center justify-center">
+                <Newspaper className="w-8 h-8 text-white/30" />
+              </div>
+            )}
+            <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent" />
+          </div>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="flex-1 min-w-0">
-        <h4 className="font-black text-white group-hover:text-[#F9C74F] transition-colors line-clamp-2 text-sm leading-tight mb-2">
-          {post.title}
-        </h4>
-        <div className="flex items-center gap-3 text-xs text-white/80 font-bold">
-          <div className="flex items-center gap-1">
+        {/* Content */}
+        <div className="flex-1 min-w-0 space-y-2">
+          {post.category && (
+            <span
+              className="inline-block px-2 py-0.5 text-[10px] font-black uppercase tracking-wide rounded"
+              style={{
+                backgroundColor: post.category.color,
+                color: 'white'
+              }}
+            >
+              {post.category.name}
+            </span>
+          )}
+          
+          <h4 className="font-black text-white group-hover:text-[#F9C74F] transition-colors line-clamp-2 text-sm leading-tight">
+            {post.title}
+          </h4>
+          
+          <div className="flex items-center gap-2 text-xs text-white/70 font-bold">
             <Eye className="w-3 h-3" />
-            <span>{post.views || 0}</span>
+            <span>{post.views || 0} views</span>
           </div>
         </div>
       </div>
@@ -433,6 +469,63 @@ function VerticalCard({ post, color }: { post: PostWithRelations; color: string 
         </div>
       </div>
     </Link>
+  );
+}
+
+async function MetricsWidgets() {
+  // Buscar cotação do dólar
+  let usdData = null;
+  try {
+    const usdResponse = await fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL', {
+      next: { revalidate: 300 } // Cache de 5 minutos
+    });
+    if (usdResponse.ok) {
+      const data = await usdResponse.json();
+      usdData = data.USDBRL;
+    }
+  } catch (error) {
+    console.error('Erro ao buscar cotação:', error);
+  }
+
+  return (
+    <div className="bg-white rounded-xl p-5 shadow-lg border-t-4 border-[#5FAD56]">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-lg bg-[#5FAD56]/10 flex items-center justify-center">
+          <DollarSign className="w-6 h-6 text-[#5FAD56]" />
+        </div>
+        <div>
+          <span className="text-xs font-black text-gray-600 uppercase block">Cotação</span>
+          <span className="text-[10px] font-bold text-gray-500">USD / BRL</span>
+        </div>
+      </div>
+      {usdData ? (
+        <div className="space-y-2">
+          <div className="text-3xl font-black text-gray-900">
+            R$ {parseFloat(usdData.bid).toFixed(2)}
+          </div>
+          <div className="flex items-center justify-between">
+            <div className={`flex items-center gap-1 text-sm font-bold ${
+              parseFloat(usdData.varBid) >= 0 ? 'text-green-600' : 'text-red-600'
+            }`}>
+              {parseFloat(usdData.varBid) >= 0 ? (
+                <TrendingUp className="w-4 h-4" />
+              ) : (
+                <TrendingDown className="w-4 h-4" />
+              )}
+              <span>{parseFloat(usdData.varBid) >= 0 ? '+' : ''}{usdData.varBid}%</span>
+            </div>
+            <span className="text-xs text-gray-500 font-semibold">
+              Atualizado: {new Date(usdData.create_date).toLocaleTimeString('pt-BR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              })}
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className="text-sm text-gray-500 font-semibold">Carregando cotação...</div>
+      )}
+    </div>
   );
 }
 

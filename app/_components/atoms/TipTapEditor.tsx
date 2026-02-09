@@ -261,7 +261,7 @@ const ImageUploadModal = ({
                   </div>
                   <div className="mt-2 px-4 py-2 bg-blue-50 rounded-lg border border-blue-200">
                     <p className="text-blue-700 text-sm font-medium">
-                      💡 Dica: Use Ctrl+V para colar imagens copiadas
+                      Dica: Use Ctrl+V para colar imagens copiadas
                     </p>
                   </div>
                 </div>

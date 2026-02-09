@@ -1,33 +1,50 @@
-import bcrypt from "bcrypt";
+import { eq } from "drizzle-orm";
 import { db } from ".";
-import { users } from "./schema";
+import { users, categories, posts } from "./schema";
 
 
-const ADMIN_NAME = "Portal ne1";
-const ADMIN_PASSWORD = "12345678";
+const seedPosts = async () => {
+  console.log("🌱 Iniciando seed de 100 posts...");
 
-const seed = async () => {
-  console.log("🌱 Iniciando seed (ADMIN only)...");
+  // Buscar um usuário ADMIN corretamente
+  const [adminUser] = await db
+    .select()
+    .from(users)
+    .where(eq(users.role, "ADMIN"));
 
-  const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
+  // Buscar a primeira categoria
+  const [firstCategory] = await db.select().from(categories);
 
-  const [admin] = await db
-    .insert(users)
-    .values({
-      name: ADMIN_NAME,
-      passwordHash,
-      role: "ADMIN",
-      actived: true,
-    })
-    .returning();
+  if (!adminUser || !firstCategory) {
+    console.error("❌ Usuário ADMIN ou categoria não encontrados.");
+    process.exit(1);
+  }
 
-  console.log(`👑 ADMIN criado com sucesso: ${admin.name}`);
-  console.log("✅ Seed finalizado");
+  const postsData = Array.from({ length: 100 }).map((_, i) => ({
+    title: `Post ${i + 1}`,
+    slug: `post-${i + 1}`,
+    description: `Descrição do post ${i + 1}`,
+    content: `Conteúdo do post ${i + 1}. Aqui você pode colocar qualquer texto.`,
+    photoUrl: `https://picsum.photos/seed/${i + 1}/640/480`,
+    tags: ["tag1", "tag2"],
+    views: 0,
+    authorId: adminUser.id,
+    categoryId: firstCategory.id,
+    published: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    publishedAt: new Date(),
+  }));
+
+  const insertedPosts = await db.insert(posts).values(postsData).returning();
+
+  console.log(`📝 ${insertedPosts.length} posts criados com sucesso!`);
+  console.log("✅ Seed de posts finalizado");
 
   process.exit(0);
 };
 
-seed().catch((err) => {
-  console.error("❌ Erro no seed:", err);
+seedPosts().catch((err) => {
+  console.error("❌ Erro no seed de posts:", err);
   process.exit(1);
 });

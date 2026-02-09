@@ -1,5 +1,5 @@
 import React from "react";
-import { FileText, Eye, Edit2, Trash2, Plus } from "lucide-react";
+import { FileText, Eye, Edit2, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { PostWithRelations } from "@/app/_types/Post";
 import Link from "next/link";
 import { DeletePostButton } from "../molecules/DeletePostButton";
@@ -11,7 +11,11 @@ interface PostsTableProps {
   totalPages: number;
 }
 
-export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
+export const PostsTable: React.FC<PostsTableProps> = ({
+  posts = [],
+  currentPage,
+  totalPages,
+}) => {
   // Empty state
   if (posts.length === 0) {
     return (
@@ -38,8 +42,7 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
             Nenhum post encontrado
           </h2>
           <p className="text-gray-600 mb-8 max-w-md">
-            Comece criando seu primeiro post e compartilhe suas notícias com o
-            mundo.
+            Comece criando seu primeiro post e compartilhe suas notícias com o mundo.
           </p>
           <Link
             href="/journalist/posts/new"
@@ -59,6 +62,46 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
     color,
     borderColor: `${color}55`,
   });
+
+  // Gera array de números de página para exibir
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      pages.push(1);
+
+      let start = Math.max(2, currentPage - 1);
+      let end = Math.min(totalPages - 1, currentPage + 1);
+
+      if (currentPage <= 3) {
+        end = 5;
+      }
+
+      if (currentPage >= totalPages - 2) {
+        start = totalPages - 4;
+      }
+
+      if (start > 2) {
+        pages.push("...");
+      }
+
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+
+      if (end < totalPages - 1) {
+        pages.push("...");
+      }
+
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
 
   return (
     <article className="bg-white/60 rounded-2xl shadow-xl border border-white/20">
@@ -81,40 +124,22 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
         <table className="w-full" role="table" aria-label="Tabela de postagens">
           <thead className="bg-linear-to-r from-gray-50/60 to-blue-50/40 backdrop-blur-sm border-b-2 border-gray-200/50">
             <tr>
-              <th
-                scope="col"
-                className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-              >
+              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Postagem
               </th>
-              <th
-                scope="col"
-                className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-              >
+              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Categoria
               </th>
-              <th
-                scope="col"
-                className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-              >
+              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Status
               </th>
-              <th
-                scope="col"
-                className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-              >
+              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Data
               </th>
-              <th
-                scope="col"
-                className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-              >
+              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Visualizações
               </th>
-              <th
-                scope="col"
-                className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-              >
+              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Ações
               </th>
             </tr>
@@ -141,9 +166,7 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
                       </div>
                     )}
                     <div className="flex flex-col">
-                      <span className="font-semibold text-gray-900">
-                        {post.title}
-                      </span>
+                      <span className="font-semibold text-gray-900">{post.title}</span>
                       {post.description && (
                         <span className="text-xs text-gray-500 line-clamp-1 mt-0.5">
                           {post.description}
@@ -155,9 +178,7 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
                 <td className="px-6 py-5">
                   <span
                     className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold border"
-                    style={categoryBadgeStyle(
-                      post.category?.color || "#283583",
-                    )}
+                    style={categoryBadgeStyle(post.category?.color || "#283583")}
                   >
                     {post.category?.name || "Sem categoria"}
                   </span>
@@ -174,9 +195,7 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
                   </span>
                 </td>
                 <td className="px-6 py-5 text-sm text-gray-600">
-                  {new Date(
-                    post.publishedAt || post.createdAt,
-                  ).toLocaleDateString("pt-BR")}
+                  {new Date(post.publishedAt || post.createdAt).toLocaleDateString("pt-BR")}
                 </td>
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -202,10 +221,7 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
                     >
                       <Edit2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
                     </Link>
-                    <DeletePostButton
-                      postId={post.id}
-                      postTitle={post.title}
-                    ></DeletePostButton>
+                    <DeletePostButton postId={post.id} postTitle={post.title} />
                   </div>
                 </td>
               </tr>
@@ -221,7 +237,6 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
             key={post.id}
             className="bg-white/70 backdrop-blur-sm rounded-xl border border-gray-200/50 p-5 hover:shadow-lg transition-all duration-300 hover:border-gray-300/50"
           >
-            {/* Card Header */}
             <div className="flex items-start gap-3 mb-4">
               {post.photoUrl ? (
                 <Image
@@ -237,20 +252,14 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-900 mb-2 text-lg">
-                  {post.title}
-                </h3>
+                <h3 className="font-semibold text-gray-900 mb-2 text-lg">{post.title}</h3>
                 {post.description && (
-                  <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                    {post.description}
-                  </p>
+                  <p className="text-sm text-gray-600 line-clamp-2 mb-3">{post.description}</p>
                 )}
                 <div className="flex flex-wrap gap-2 mb-3">
                   <span
                     className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold border"
-                    style={categoryBadgeStyle(
-                      post.category?.color || "#283583",
-                    )}
+                    style={categoryBadgeStyle(post.category?.color || "#283583")}
                   >
                     {post.category?.name || "Sem categoria"}
                   </span>
@@ -266,9 +275,7 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
                 </div>
                 <div className="flex items-center gap-4 text-xs text-gray-500">
                   <span>
-                    {new Date(
-                      post.publishedAt || post.createdAt,
-                    ).toLocaleDateString("pt-BR")}
+                    {new Date(post.publishedAt || post.createdAt).toLocaleDateString("pt-BR")}
                   </span>
                   <div className="flex items-center gap-1">
                     <Eye className="w-3.5 h-3.5" />
@@ -278,7 +285,6 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
               </div>
             </div>
 
-            {/* Card Footer */}
             <div className="flex items-center justify-between pt-4 border-t border-gray-200/50">
               <div className="flex gap-2">
                 <Link
@@ -297,18 +303,75 @@ export const PostsTable: React.FC<PostsTableProps> = ({ posts = [] }) => {
                 >
                   <Edit2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 </Link>
-                <button
-                  className="p-2 bg-white/50 backdrop-blur-sm border border-gray-200/60 rounded-lg hover:bg-linear-to-r hover:from-red-50 hover:to-pink-50 hover:border-[#C4161C]/30 hover:text-[#C4161C] text-gray-600 transition-all duration-200 group"
-                  title="Deletar"
-                  aria-label={`Deletar ${post.title}`}
-                >
-                  <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                </button>
+                <DeletePostButton postId={post.id} postTitle={post.title} />
               </div>
             </div>
           </article>
         ))}
       </div>
+
+      {/* Paginação */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200/50 bg-linear-to-r from-gray-50/30 to-blue-50/20">
+          {/* Botão Anterior */}
+          <Link
+            href={currentPage > 1 ? `/journalist/posts?page=${currentPage - 1}` : "#"}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
+              currentPage > 1
+                ? "bg-white/60 border border-gray-200/60 text-gray-700 hover:bg-linear-to-r hover:from-blue-50 hover:to-indigo-50 hover:border-[#283583]/30 hover:text-[#283583]"
+                : "bg-gray-100/50 border border-gray-200/30 text-gray-400 cursor-not-allowed"
+            }`}
+            aria-disabled={currentPage <= 1}
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Anterior</span>
+          </Link>
+
+          {/* Números das páginas */}
+          <div className="flex items-center gap-1">
+            {getPageNumbers().map((page, index) => {
+              if (page === "...") {
+                return (
+                  <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-400">
+                    ...
+                  </span>
+                );
+              }
+
+              const pageNum = page as number;
+              const isActive = pageNum === currentPage;
+
+              return (
+                <Link
+                  key={pageNum}
+                  href={`/journalist/posts?page=${pageNum}`}
+                  className={`px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
+                    isActive
+                      ? "bg-linear-to-r from-[#283583] to-[#3d4ba8] text-white shadow-md"
+                      : "bg-white/60 border border-gray-200/60 text-gray-700 hover:bg-linear-to-r hover:from-blue-50 hover:to-indigo-50 hover:border-[#283583]/30 hover:text-[#283583]"
+                  }`}
+                >
+                  {pageNum}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Botão Próximo */}
+          <Link
+            href={currentPage < totalPages ? `/journalist/posts?page=${currentPage + 1}` : "#"}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
+              currentPage < totalPages
+                ? "bg-white/60 border border-gray-200/60 text-gray-700 hover:bg-linear-to-r hover:from-blue-50 hover:to-indigo-50 hover:border-[#283583]/30 hover:text-[#283583]"
+                : "bg-gray-100/50 border border-gray-200/30 text-gray-400 cursor-not-allowed"
+            }`}
+            aria-disabled={currentPage >= totalPages}
+          >
+            <span className="hidden sm:inline">Próximo</span>
+            <ChevronRight className="w-4 h-4" />
+          </Link>
+        </div>
+      )}
     </article>
   );
 };

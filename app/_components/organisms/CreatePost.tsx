@@ -23,7 +23,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
     try {
       const post = await postService.create(submitData);
       toast.success(`${post.title} postado com sucesso!`)
-      setTimeout(() => router.push("/journalist"), 1500);
+      setTimeout(() => router.push("/journalist/posts"), 1500);
     } catch (error) {
       toast.error("Senha inválida!");
       throw error;

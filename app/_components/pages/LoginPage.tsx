@@ -37,7 +37,7 @@ export const LoginPage = () => {
 
       toast.success("Logado com sucesso!");
 
-      setTimeout(() => router.push("/journalist"), TEMPO_LOGIN);
+      setTimeout(() => router.push("/journalist/posts"), TEMPO_LOGIN);
     } catch (err) {
       toast.error("Erro ao fazer login. Tente novamente.");
     } finally {

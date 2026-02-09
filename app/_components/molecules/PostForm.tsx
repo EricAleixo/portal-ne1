@@ -324,6 +324,9 @@ export const PostForm: React.FC<PostFormProps> = ({
   const buttonText =
     submitButtonText ||
     (mode === "create" ? "Salvar Postagem" : "Atualizar Postagem");
+  
+  // Encontrar a categoria selecionada para usar na pré-visualização
+  const selectedCategory = categories.find(c => c.id === Number(formData.categoryId));
 
   return (
     <>
@@ -475,33 +478,73 @@ export const PostForm: React.FC<PostFormProps> = ({
                 <TagIcon className="w-4 h-4 text-[#283583]" />
                 Categoria
               </label>
-              <select
-                id="categoryId"
-                name="categoryId"
-                value={formData.categoryId}
-                onChange={(e) => {
-                  setFormData((prev) => ({ ...prev, categoryId: e.target.value }));
-                  if (errors.categoryId) {
-                    setErrors((prev) => ({ ...prev, categoryId: "" }));
-                  }
-                }}
-                className={`w-full px-4 py-3 rounded-xl border ${
-                  errors.categoryId
-                    ? "border-red-300 bg-red-50/50"
-                    : "border-gray-200/60 bg-white/50"
-                } backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#283583]/20 focus:border-[#283583] transition-all duration-200`}
-              >
-                <option value="">Selecione uma categoria</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  id="categoryId"
+                  name="categoryId"
+                  value={formData.categoryId}
+                  onChange={(e) => {
+                    setFormData((prev) => ({ ...prev, categoryId: e.target.value }));
+                    if (errors.categoryId) {
+                      setErrors((prev) => ({ ...prev, categoryId: "" }));
+                    }
+                  }}
+                  className={`w-full pl-10 pr-10 py-3 rounded-xl border ${
+                    errors.categoryId
+                      ? "border-red-300 bg-red-50/50"
+                      : "border-gray-200/60 bg-white/50"
+                  } backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#283583]/20 focus:border-[#283583] transition-all duration-200 appearance-none cursor-pointer font-medium`}
+                  style={{
+                    backgroundImage: formData.categoryId 
+                      ? `linear-gradient(to right, ${selectedCategory?.color}10, transparent)`
+                      : 'none'
+                  }}
+                >
+                  <option value="">Selecione uma categoria</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+                
+                {/* Indicador de cor da categoria selecionada */}
+                {formData.categoryId && selectedCategory && (
+                  <div 
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full shadow-md border-2 border-white"
+                    style={{ 
+                      backgroundColor: selectedCategory.color 
+                    }}
+                  />
+                )}
+                
+                {/* Ícone dropdown customizado */}
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
               {errors.categoryId && (
                 <p className="text-red-600 text-sm flex items-center gap-1">
                   <CircleAlert className="h-6 w-6" /> {errors.categoryId}
                 </p>
+              )}
+              
+              {/* Preview da categoria selecionada */}
+              {formData.categoryId && selectedCategory && (
+                <div className="flex items-center gap-2 p-3 bg-white/50 rounded-lg border border-gray-200/60">
+                  <span className="text-xs text-gray-500 font-semibold">Pré-visualização:</span>
+                  <span 
+                    className="inline-block px-3 py-1.5 text-xs font-black uppercase tracking-wide rounded-lg shadow-sm"
+                    style={{
+                      backgroundColor: selectedCategory.color,
+                      color: 'white'
+                    }}
+                  >
+                    {selectedCategory.name}
+                  </span>
+                </div>
               )}
             </div>
 
@@ -774,14 +817,16 @@ export const PostForm: React.FC<PostFormProps> = ({
                 )}
 
                 {/* Category Badge */}
-                {formData.categoryId && (
+                {formData.categoryId && selectedCategory && (
                   <div className="mb-4">
-                    <span className="inline-block px-4 py-2 bg-linear-to-r from-blue-500 to-indigo-500 text-white text-sm font-bold rounded-full">
-                      {
-                        categories.find(
-                          (cat) => cat.id === Number(formData.categoryId)
-                        )?.name
-                      }
+                    <span 
+                      className="inline-block px-5 py-2.5 text-sm font-black uppercase tracking-wider shadow-lg rounded-lg"
+                      style={{
+                        backgroundColor: selectedCategory.color,
+                        color: 'white'
+                      }}
+                    >
+                      {selectedCategory.name}
                     </span>
                   </div>
                 )}
