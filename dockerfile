@@ -47,4 +47,5 @@ USER nextjs
 EXPOSE 3000
 
 # start correto para produção
-CMD ["node", "node_modules/next/dist/bin/next", "start", "-p", "3000"]
+CMD ["node", "node_modules/next/dist/bin/next", "start", "-H", "0.0.0.0", "-p", "3000"]
+
