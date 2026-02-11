@@ -1,7 +1,7 @@
 import { postService } from '@/app/_services/post.service';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Calendar, Eye, ArrowRight, Clock, Newspaper, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
+import { Calendar, ArrowRight, Clock, Newspaper, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
 import { PostWithRelations } from '@/app/_types/Post';
 import { categoryService } from '@/app/_services/categorie.service';
 import { Header } from '../organisms/Header';
@@ -14,7 +14,6 @@ export const HomePage = async () => {
   const featuredPost = allPosts[0];
   const recentPosts = allPosts.slice(1, 7);
   const trendingPosts = allPosts
-    .sort((a, b) => (b.views || 0) - (a.views || 0))
     .slice(0, 4);
 
   // Agrupar por categoria
@@ -30,7 +29,8 @@ export const HomePage = async () => {
   const categories = Object.entries(postsByCategory)
     .map(([name, posts]) => ({
       name,
-      posts: posts.slice(0, 4),
+      slug: posts[0]?.category?.slug,
+      posts: posts.slice(0, 4).reverse(),
       color: posts[0]?.category?.color || '#283583'
     }))
     .slice(0, 3);
@@ -123,7 +123,7 @@ export const HomePage = async () => {
                     {category.name}
                   </h2>
                   <Link 
-                    href={`/categorias/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+                    href={`/categorias/${category.slug}`}
                     className="text-sm font-black uppercase tracking-wide hover:underline transition-all"
                     style={{ color: category.color }}
                   >
@@ -204,6 +204,7 @@ export const HomePage = async () => {
   );
 }
 
+
 function HeroSection({ post }: { post: PostWithRelations }) {
   return (
     <section className="relative h-[75vh] overflow-hidden">
@@ -221,7 +222,6 @@ function HeroSection({ post }: { post: PostWithRelations }) {
           <div className="w-full h-full bg-linear-to-br from-[#C4161C] via-[#283583] to-[#5FAD56]" />
         )}
         <div className="absolute inset-0 bg-linear-to-t from-black via-black/60 to-transparent" />
-        
         {/* Efeito de overlay moderno */}
         <div className="absolute inset-0 bg-linear-to-br from-[#C4161C]/20 via-transparent to-[#283583]/20" />
       </div>
@@ -241,16 +241,16 @@ function HeroSection({ post }: { post: PostWithRelations }) {
             </span>
           )}
           
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white drop-shadow-2xl leading-none uppercase tracking-tighter">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white drop-shadow-2xl leading-none uppercase tracking-tighter line-clamp-2 sm:line-clamp-2 md:line-clamp-1">
             {post.title}
           </h1>
           
           {post.description && (
-            <p className="text-2xl text-white/95 drop-shadow-lg font-bold max-w-3xl">
+            <p className="text-base sm:text-lg md:text-xl text-white/95 drop-shadow-lg font-bold max-w-3xl line-clamp-3 sm:line-clamp-2 md:line-clamp-2 lg:line-clamp-1">
               {post.description}
             </p>
           )}
-
+          
           <div className="flex flex-wrap items-center gap-6 text-white/90 text-sm font-bold">
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
               <Calendar className="w-4 h-4" />
@@ -258,10 +258,7 @@ function HeroSection({ post }: { post: PostWithRelations }) {
                 {new Date(post.publishedAt || post.createdAt).toLocaleDateString('pt-BR')}
               </span>
             </div>
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-              <Eye className="w-4 h-4" />
-              <span>{post.views || 0}</span>
-            </div>
+            
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
               <Clock className="w-4 h-4" />
               <span>
@@ -269,7 +266,7 @@ function HeroSection({ post }: { post: PostWithRelations }) {
               </span>
             </div>
           </div>
-
+          
           <Link
             href={`/posts/${post.slug}`}
             className="inline-flex items-center gap-3 px-10 py-5 bg-linear-to-r from-[#C4161C] to-[#e01b22] hover:from-[#a01318] hover:to-[#C4161C] text-white font-black uppercase tracking-wide text-lg transition-all duration-300 hover:shadow-2xl hover:shadow-red-500/50 hover:scale-105 group rounded-xl"
@@ -333,10 +330,6 @@ function PostCard({ post }: { post: PostWithRelations }) {
 
         <div className="flex items-center justify-between text-xs text-gray-500 pt-4 border-t-2 border-gray-100 font-bold">
           <span>{new Date(post.publishedAt || post.createdAt).toLocaleDateString('pt-BR')}</span>
-          <div className="flex items-center gap-1">
-            <Eye className="w-3.5 h-3.5" />
-            <span>{post.views || 0}</span>
-          </div>
         </div>
       </div>
     </Link>
@@ -394,10 +387,6 @@ function TrendingCard({ post, rank }: { post: PostWithRelations; rank: number })
             {post.title}
           </h4>
           
-          <div className="flex items-center gap-2 text-xs text-white/70 font-bold">
-            <Eye className="w-3 h-3" />
-            <span>{post.views || 0} views</span>
-          </div>
         </div>
       </div>
     </Link>
@@ -529,7 +518,7 @@ async function MetricsWidgets() {
   );
 }
 
-function Footer({ allCategories }: { allCategories: Array<{ id: number; name: string; color: string }> }) {
+function Footer({ allCategories }: { allCategories: Array<{ id: number; name: string; color: string; slug: string | null }> }) {
   return (
     <footer className="bg-linear-to-br from-[#283583] via-[#1e2660] to-[#283583] text-white mt-20 relative overflow-hidden">
       {/* Efeitos decorativos */}
@@ -556,7 +545,7 @@ function Footer({ allCategories }: { allCategories: Array<{ id: number; name: st
               {allCategories.map((category) => (
                 <li key={category.id}>
                   <Link 
-                    href={`/categorias/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+                    href={`/categorias/${category.slug}`}
                     className="hover:text-[#F9C74F] transition-colors"
                   >
                     {category.name}
@@ -566,12 +555,33 @@ function Footer({ allCategories }: { allCategories: Array<{ id: number; name: st
             </ul>
           </div>
           <div>
-            <h3 className="font-black text-xl mb-6 uppercase tracking-tight">Contato</h3>
-            <p className="text-white/80 font-semibold leading-relaxed">
-              Email: contato@ne1noticias.com.br<br />
-              Telefone: (81) 3333-4444
-            </p>
-          </div>
+  <h3 className="font-black text-xl mb-6 uppercase tracking-tight">
+    Contato
+  </h3>
+
+  <p className="text-white/80 font-semibold leading-relaxed">
+    Email:{" "}
+    <a
+      href="mailto:portalne1jornalismo@gmail.com"
+      className="hover:underline"
+    >
+      portalne1jornalismo@gmail.com
+    </a>
+    <br />
+
+    Telefone:{" "}
+    <a
+      href="https://wa.me/558396231297"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hover:underline"
+    >
+      (83) 9 9623-1297
+    </a>
+  </p>
+</div>
+
+
         </div>
         <div className="mt-12 pt-8 border-t border-white/20 text-center text-sm text-white/60 font-bold">
           <p>&copy; {new Date().getFullYear()} NE1 Notícias. Todos os direitos reservados.</p>
@@ -581,7 +591,7 @@ function Footer({ allCategories }: { allCategories: Array<{ id: number; name: st
   );
 }
 
-function EmptyState({ allCategories }: { allCategories: Array<{ id: number; name: string; color: string }> }) {
+function EmptyState({ allCategories }: { allCategories: Array<{ id: number; name: string; color: string; slug: string | null }> }) {
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
       <Header/>

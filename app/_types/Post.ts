@@ -60,5 +60,6 @@ export interface PostWithRelations extends Post {
     id: number;
     name: string;
     color: string;
+    slug: string | null;
   };
 }

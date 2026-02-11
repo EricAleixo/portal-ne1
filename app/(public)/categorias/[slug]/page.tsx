@@ -1,7 +1,7 @@
 import { postService } from "@/app/_services/post.service";
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, Eye, Clock, Newspaper, ArrowLeft } from "lucide-react";
+import { Calendar,Clock, Newspaper, ArrowLeft } from "lucide-react";
 import { PostWithRelations } from "@/app/_types/Post";
 import { notFound } from "next/navigation";
 import { categoryService } from "@/app/_services/categorie.service";
@@ -195,10 +195,6 @@ function FeaturedPostCard({
               </span>
             </div>
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-              <Eye className="w-4 h-4" />
-              <span>{post.views || 0}</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
               <Clock className="w-4 h-4" />
               <span>{Math.ceil(post.content.split(" ").length / 200)} min</span>
             </div>
@@ -255,10 +251,6 @@ function PostCard({
               "pt-BR",
             )}
           </span>
-          <div className="flex items-center gap-1">
-            <Eye className="w-3.5 h-3.5" />
-            <span>{post.views || 0}</span>
-          </div>
         </div>
       </div>
     </Link>

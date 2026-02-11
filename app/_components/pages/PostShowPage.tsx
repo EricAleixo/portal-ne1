@@ -1,5 +1,5 @@
 import { postService } from "@/app/_services/post.service";
-import { Calendar, Eye, ArrowLeft, Tag, User, Clock } from "lucide-react";
+import { Calendar, ArrowLeft, Tag, User, Clock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -32,184 +32,142 @@ export const PostShowPage = async ({ slug }: PostShowPageProps) => {
   const session = await getServerSession();
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <Header></Header>
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-blue-50">
+      <Header/>
 
-      {/* Hero Section com imagem */}
-      <div className="relative">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-[#283583] hover:text-[#1e2866] mb-8 transition-colors font-medium group"
+        >
+          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+          Voltar para o início
+        </Link>
+
+        {/* Hero Section com imagem */}
         {postWithRelations.photoUrl ? (
-          <div className="relative h-[60vh] w-full overflow-hidden">
-            {/* Overlay com cores da identidade visual */}
-            <div className="absolute inset-0 bg-linear-to-t from-[#283583]/80 via-[#C4161C]/20 to-transparent z-10" />
-            <Image
-              src={postWithRelations.photoUrl}
-              alt={postWithRelations.title}
-              className="w-full h-full object-cover"
-              width={1200}
-              height={1200}
-            />
-            <div className="absolute bottom-0 left-0 right-0 z-20 p-8 lg:p-12">
-              <div className="max-w-5xl mx-auto">
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-2xl">
-                  {postWithRelations.title}
-                </h1>
-                {postWithRelations.description && (
-                  <p className="text-xl text-white/95 max-w-3xl drop-shadow-lg">
-                    {postWithRelations.description}
-                  </p>
-                )}
-              </div>
+          <div className="mb-8">
+            <div className="relative w-full h-100 rounded-2xl overflow-hidden shadow-2xl">
+              <Image
+                src={postWithRelations.photoUrl}
+                alt={postWithRelations.title}
+                fill
+                className="object-cover"
+                priority
+              />
             </div>
-          </div>
-        ) : (
-          <div className="relative bg-linear-to-br from-[#283583] via-[#3d4ba8] to-[#4e5fc0] py-20 lg:py-32 overflow-hidden">
-            {/* Decoração com cores da marca */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-[#C4161C]/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#5FAD56]/10 rounded-full blur-3xl" />
 
-            <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 drop-shadow-lg">
+            {/* Título e descrição abaixo da imagem */}
+            <div className="mt-8">
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
                 {postWithRelations.title}
               </h1>
               {postWithRelations.description && (
-                <p className="text-xl text-white/95 max-w-3xl drop-shadow-md">
+                <p className="text-xl text-gray-600 leading-relaxed">
+                  {postWithRelations.description}
+                </p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="relative mb-8 rounded-2xl overflow-hidden shadow-lg bg-linear-to-br from-[#283583] to-[#1e2866] p-12">
+            {/* Decoração com cores da marca */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+
+            <div className="relative z-10">
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                {postWithRelations.title}
+              </h1>
+              {postWithRelations.description && (
+                <p className="text-xl text-blue-100 leading-relaxed">
                   {postWithRelations.description}
                 </p>
               )}
             </div>
           </div>
         )}
-      </div>
 
-      {/* Meta informações com cores da identidade */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-gray-200/50 shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600">
-            <div className="flex items-center gap-2">
-              {postWithRelations.author?.photoProfile &&
-              !postWithRelations.author.photoProfile.includes(
-                "avatar-placeholder",
-              ) ? (
-                <Image
-                  src={postWithRelations.author.photoProfile}
-                  alt={`Foto de ${postWithRelations.author.name}`}
-                  width={32}
-                  height={32}
-                  className="w-8 h-8 rounded-full object-cover border-2 border-white ring-2 ring-gray-200 shadow-sm"
-                />
-              ) : (
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center font-black text-white text-xs border-2 border-white ring-2 ring-gray-200 shadow-sm"
-                  style={{
-                    background: `linear-gradient(to bottom right, ${
-                      [
-                        "#283583",
-                        "#C4161C",
-                        "#5FAD56",
-                        "#F9C74F",
-                        "#9333ea",
-                        "#db2777",
-                      ][
-                        (postWithRelations.author?.name?.charCodeAt(0) || 0) % 6
-                      ]
-                    }, ${
-                      [
-                        "#3d4ba8",
-                        "#e01b22",
-                        "#4a9d47",
-                        "#f4a93f",
-                        "#7e22ce",
-                        "#be185d",
-                      ][
-                        (postWithRelations.author?.name?.charCodeAt(0) || 0) % 6
-                      ]
-                    })`,
-                  }}
-                >
-                  {postWithRelations.author?.name?.charAt(0).toUpperCase() ||
-                    "?"}
-                </div>
-              )}
-              <span className="font-medium text-gray-900">
-                {postWithRelations.author?.name || "Autor Desconhecido"}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-linear-to-br from-[#C4161C]/10 to-[#e01b22]/10">
-                <Calendar className="w-4 h-4 text-[#C4161C]" />
+        {/* Meta informações com cores da identidade */}
+        <div className="flex flex-wrap items-center gap-6 mb-8 pb-8 border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            {postWithRelations.author?.photoProfile &&
+            !postWithRelations.author.photoProfile.includes(
+              "avatar-placeholder",
+            ) ? (
+              <Image
+                src={postWithRelations.author.photoProfile}
+                alt={postWithRelations.author.name || "Autor"}
+                width={40}
+                height={40}
+                className="rounded-full border-2 border-[#283583]"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#283583] to-[#1e2866] flex items-center justify-center text-white font-bold border-2 border-[#283583]">
+                {postWithRelations.author?.name?.charAt(0).toUpperCase() || "?"}
               </div>
-              <time className="font-medium">
-                {new Date(
-                  postWithRelations.publishedAt || postWithRelations.createdAt,
-                ).toLocaleDateString("pt-BR", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
-              </time>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-linear-to-br from-[#5FAD56]/10 to-emerald-500/10">
-                <Clock className="w-4 h-4 text-[#5FAD56]" />
-              </div>
-              <span className="font-medium">
-                {Math.ceil(postWithRelations.content.split(" ").length / 200)}{" "}
-                min de leitura
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-linear-to-br from-blue-500/10 to-indigo-500/10">
-                <Eye className="w-4 h-4 text-blue-600" />
-              </div>
-              <span className="font-medium">
-                {postWithRelations.views || 0} visualizações
-              </span>
-            </div>
-
-            {postWithRelations.category && (
-              <span
-                className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold border ml-auto shadow-sm"
-                style={categoryBadgeStyle}
-              >
-                {postWithRelations.category.name}
-              </span>
             )}
+            <span className="text-gray-700 font-medium">
+              {postWithRelations.author?.name || "Autor Desconhecido"}
+            </span>
           </div>
-        </div>
-      </div>
 
-      {/* Conteúdo principal */}
-      <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div
-          className="prose prose-lg prose-slate max-w-none
-            prose-headings:font-bold prose-headings:text-gray-900
-            prose-h1:text-4xl prose-h1:text-[#283583]
-            prose-h2:text-3xl prose-h2:text-[#283583]
-            prose-h3:text-2xl prose-h3:text-gray-800
+          <div className="flex items-center gap-2 text-gray-600">
+            <Calendar className="w-4 h-4" />
+            <span>
+              {new Date(
+                postWithRelations.publishedAt || postWithRelations.createdAt,
+              ).toLocaleDateString("pt-BR", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 text-gray-600">
+            <Clock className="w-4 h-4" />
+            <span>
+              {Math.ceil(postWithRelations.content.split(" ").length / 200)}{" "}
+              min de leitura
+            </span>
+          </div>
+
+          {postWithRelations.category && (
+            <div
+              className="px-4 py-1.5 rounded-full text-sm font-medium border"
+              style={categoryBadgeStyle}
+            >
+              {postWithRelations.category.name}
+            </div>
+          )}
+        </div>
+
+        {/* Conteúdo principal */}
+        <article
+          className="prose prose-lg max-w-none mb-12
+            prose-headings:text-gray-900 prose-headings:font-bold
             prose-p:text-gray-700 prose-p:leading-relaxed
-            prose-a:text-[#C4161C] prose-a:no-underline hover:prose-a:underline prose-a:font-medium
-            prose-strong:text-gray-900 prose-strong:font-semibold
-            prose-blockquote:border-l-4 prose-blockquote:border-[#C4161C] prose-blockquote:bg-gray-50 prose-blockquote:pl-6 prose-blockquote:py-2 prose-blockquote:italic
-            prose-img:rounded-xl prose-img:shadow-xl prose-img:border prose-img:border-gray-200
-            prose-code:bg-[#283583]/5 prose-code:text-[#283583] prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm prose-code:font-medium
-            prose-pre:bg-[#283583] prose-pre:text-gray-100 prose-pre:shadow-lg"
+            prose-a:text-[#283583] prose-a:no-underline hover:prose-a:underline
+            prose-strong:text-gray-900
+            prose-code:text-[#283583] prose-code:bg-blue-50 prose-code:px-2 prose-code:py-1 prose-code:rounded
+            prose-pre:bg-gray-900 prose-pre:text-gray-100
+            prose-img:rounded-xl prose-img:shadow-lg"
           dangerouslySetInnerHTML={{ __html: postWithRelations.content }}
         />
 
         {/* Tags */}
         {postWithRelations.tags && postWithRelations.tags.length > 0 && (
-          <div className="mt-12 pt-8 border-t-2 border-gradient-to-r from-[#283583]/20 via-[#C4161C]/20 to-[#5FAD56]/20">
-            <div className="flex items-center gap-3 flex-wrap">
-              <div className="p-2 rounded-lg bg-linear-to-br from-[#283583]/10 to-[#3d4ba8]/10">
-                <Tag className="w-5 h-5 text-[#283583]" />
-              </div>
+          <div className="mb-8 p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+            <div className="flex items-center gap-2 mb-4">
+              <Tag className="w-5 h-5 text-[#283583]" />
+              <h3 className="text-lg font-semibold text-gray-900">Tags</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
               {postWithRelations.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1.5 bg-linear-to-r from-gray-100 to-gray-50 hover:from-[#283583]/10 hover:to-[#3d4ba8]/10 text-gray-700 hover:text-[#283583] rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer border border-gray-200 hover:border-[#283583]/30 shadow-sm"
+                  className="px-3 py-1.5 bg-linear-to-r from-blue-50 to-indigo-50 text-[#283583] rounded-lg text-sm font-medium border border-blue-100 hover:border-[#283583] transition-colors"
                 >
                   #{tag}
                 </span>
@@ -217,19 +175,11 @@ export const PostShowPage = async ({ slug }: PostShowPageProps) => {
             </div>
           </div>
         )}
-      </article>
 
-      {/* Footer com ações - cores da identidade */}
-      <div className="bg-linear-to-r from-white/80 via-blue-50/40 to-white/80 backdrop-blur-xl border-t border-gray-200/50 mt-12">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-gray-600 text-sm font-medium">
-              Última atualização:{" "}
-              {new Date(postWithRelations.updatedAt).toLocaleDateString(
-                "pt-BR",
-              )}
-            </p>
-          </div>
+        {/* Footer com ações - cores da identidade */}
+        <div className="pt-8 border-t border-gray-200 text-center text-sm text-gray-500">
+          Última atualização:{" "}
+          {new Date(postWithRelations.updatedAt).toLocaleDateString("pt-BR")}
         </div>
       </div>
     </div>

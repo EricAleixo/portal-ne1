@@ -140,6 +140,7 @@ export class PostRepository {
           id: categories.id,
           name: categories.name,
           color: categories.color,
+          slug: categories.slug
         },
       })
       .from(posts)
