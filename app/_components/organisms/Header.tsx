@@ -20,7 +20,7 @@ export const Header = async ({
   const remainingCategories = hasMoreCategories ? allCategories.slice(5) : [];
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b-4 border-[#C4161C] shadow-lg">
+    <header className="sticky top-0 z-50 bg-white border-b-4 border-[#C4161C] shadow-md">
       <div className="max-w-7xl mx-auto px-0 md:px-6 lg:px-8 py-5">
         {/* Linha Principal: Logo + Nav Desktop + Search + Área Jornalista */}
         <div className="flex items-center justify-between gap-4 mb-4 px-4 md:px-0">

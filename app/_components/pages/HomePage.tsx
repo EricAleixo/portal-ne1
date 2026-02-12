@@ -55,15 +55,15 @@ export const HomePage = async () => {
       {/* Header/Navbar */}
       <Header />
 
-      {/* Hero Section - Destaque Principal */}
-      {featuredPost && <HeroSection post={featuredPost} />}
+      {/* Grid: Últimas + Em Alta */}
+      <div className="bg-white pt-2">
+        <MostReadSection />
+        {/* Hero Section - Destaque Principal */}
+        {featuredPost && <HeroSection post={featuredPost} />}
+      </div>
 
       {/* Container Principal */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-20">
-        {/* Grid: Últimas + Em Alta */}
-
-        <MostReadSection/>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Últimas Notícias - 2/3 */}
           <section className="lg:col-span-2 space-y-8">
@@ -129,106 +129,131 @@ export const HomePage = async () => {
         </div>
 
         {/* Seções por Categoria - Layout Magazine */}
-        {categories.length > 0
-          ? categories.map((category, idx) => (
-              <section key={category.name} className="space-y-8">
-                <div className="flex items-center gap-4">
-                  <div
-                    className="h-12 w-2 rounded-full"
-                    style={{
-                      background: `linear-gradient(to bottom, ${category.color}, ${category.color}dd)`,
-                    }}
-                  />
-                  <div className="flex items-center justify-between flex-1">
-                    <h2 className="text-4xl font-black text-gray-900 uppercase tracking-tight">
-                      {category.name}
-                    </h2>
-                    <Link
-                      href={`/categorias/${category.slug}`}
-                      className="text-sm font-black uppercase tracking-wide hover:underline transition-all"
-                      style={{ color: category.color }}
-                    >
-                      Ver todas →
-                    </Link>
-                  </div>
-                </div>
+{categories.length > 0
+  ? categories.map((category, idx) => (
+      <section
+        key={category.name}
+        className={`space-y-8 ${idx % 2 === 1 ? "relative" : ""}`}
+      >
+        {/* Fundo azul fullwidth (absolute) */}
+        {idx % 2 === 1 && (
+          <div className="absolute inset-0 left-[50%] right-[50%] ml-[-50vw] mr-[-50vw] w-screen bg-linear-to-br from-[#283583] via-[#1e2660] to-[#283583] overflow-hidden">
+            {/* Efeitos decorativos */}
+            <div className="absolute top-0 left-0 w-64 h-64 bg-[#C4161C]/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 right-0 w-64 h-64 bg-[#5FAD56]/10 rounded-full blur-3xl" />
+          </div>
+        )}
 
-                {/* Layout alternado */}
-                {idx % 2 === 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Featured Large */}
-                    {category.posts[0] && (
-                      <Link
-                        href={`/posts/${category.posts[0].slug}`}
-                        className="group md:row-span-2 relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500"
-                      >
-                        <div className="relative h-full min-h-100">
-                          {category.posts[0].photoUrl ? (
-                            <Image
-                              src={category.posts[0].photoUrl}
-                              alt={category.posts[0].title}
-                              width={1200}
-                              height={1200}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                            />
-                          ) : (
-                            <div
-                              className="w-full h-full"
-                              style={{
-                                background: `linear-gradient(135deg, ${category.color}40, ${category.color}80)`,
-                              }}
-                            />
-                          )}
-                          <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/50 to-transparent" />
+        {/* Conteúdo (relative para ficar acima do fundo) */}
+        <div className={`relative ${idx % 2 === 1 ? "py-16" : ""}`}>
+          <div className="flex items-center gap-4">
+            <div
+              className="h-12 w-2 rounded-full"
+              style={{
+                background: `linear-gradient(to bottom, ${category.color}, ${category.color}dd)`,
+              }}
+            />
+            <div className="flex items-center justify-between flex-1 relative">
+              {
+                idx % 2 === 1 &&
+                  <span style={{background: `linear-gradient(to bottom, ${category.color}, ${category.color}dd)`}} className="w-[107%] md:w-[103%] h-0.5 absolute -bottom-2.5 -left-6 rounded-full"></span>
+              }
+              <h2
+                className={`text-4xl font-black uppercase tracking-tight ${
+                  idx % 2 === 1 ? "text-white" : "text-gray-900"
+                }`}
+              >
+                {category.name}
+              </h2>
+              <Link
+                href={`/categorias/${category.slug}`}
+                className={`text-sm font-black uppercase tracking-wide hover:underline transition-all ${
+                  idx % 2 === 1 ? "text-white" : ""
+                }`}
+                style={idx % 2 === 1 ? {} : { color: category.color }}
+              >
+                Ver todas →
+              </Link>
+            </div>
+          </div>
 
-                          <div className="absolute bottom-0 left-0 right-0 p-8">
-                            <span
-                              className="inline-block px-4 py-2 text-xs font-black uppercase mb-4 rounded-lg shadow-lg"
-                              style={{
-                                backgroundColor: category.color,
-                                color: "white",
-                              }}
-                            >
-                              {category.name}
-                            </span>
-                            <h3 className="text-3xl font-black text-white leading-tight mb-3 group-hover:text-[#F9C74F] transition-colors">
-                              {category.posts[0].title}
-                            </h3>
-                            {category.posts[0].description && (
-                              <p className="text-white/90 text-sm line-clamp-2 font-medium">
-                                {category.posts[0].description}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </Link>
+          {/* Layout alternado */}
+          {idx % 2 === 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+              {/* Featured Large */}
+              {category.posts[0] && (
+                <Link
+                  href={`/posts/${category.posts[0].slug}`}
+                  className="group md:row-span-2 relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500"
+                >
+                  <div className="relative h-full min-h-100">
+                    {category.posts[0].photoUrl ? (
+                      <Image
+                        src={category.posts[0].photoUrl}
+                        alt={category.posts[0].title}
+                        width={1200}
+                        height={1200}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full"
+                        style={{
+                          background: `linear-gradient(135deg, ${category.color}40, ${category.color}80)`,
+                        }}
+                      />
                     )}
+                    <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/50 to-transparent" />
 
-                    {/* 3 cards menores */}
-                    <div className="space-y-6">
-                      {category.posts.slice(1, 4).map((post) => (
-                        <CompactCard
-                          key={post.id}
-                          post={post}
-                          color={category.color}
-                        />
-                      ))}
+                    <div className="absolute bottom-0 left-0 right-0 p-8">
+                      <span
+                        className="inline-block px-4 py-2 text-xs font-black uppercase mb-4 rounded-lg shadow-lg"
+                        style={{
+                          backgroundColor: category.color,
+                          color: "white",
+                        }}
+                      >
+                        {category.name}
+                      </span>
+                      <h3 className="text-3xl font-black text-white leading-tight mb-3 group-hover:text-[#F9C74F] transition-colors">
+                        {category.posts[0].title}
+                      </h3>
+                      {category.posts[0].description && (
+                        <p className="text-white/90 text-sm line-clamp-2 font-medium">
+                          {category.posts[0].description}
+                        </p>
+                      )}
                     </div>
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    {category.posts.map((post) => (
-                      <VerticalCard
-                        key={post.id}
-                        post={post}
-                        color={category.color}
-                      />
-                    ))}
-                  </div>
-                )}
-              </section>
-            ))
-          : null}
+                </Link>
+              )}
+
+              {/* 3 cards menores */}
+              <div className="space-y-6">
+                {category.posts.slice(1, 4).map((post) => (
+                  <CompactCard
+                    key={post.id}
+                    post={post}
+                    color={category.color}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+              {category.posts.map((post) => (
+                <VerticalCard
+                  key={post.id}
+                  post={post}
+                  color={category.color}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    ))
+  : null}
       </main>
 
       {/* Footer */}
@@ -239,79 +264,52 @@ export const HomePage = async () => {
 
 function HeroSection({ post }: { post: PostWithRelations }) {
   return (
-    <section className="relative h-[75vh] overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0">
-        {post.photoUrl ? (
-          <Image
-            src={post.photoUrl}
-            alt={post.title}
-            width={1200}
-            height={1200}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-linear-to-br from-[#C4161C] via-[#283583] to-[#5FAD56]" />
-        )}
-        <div className="absolute inset-0 bg-linear-to-t from-black via-black/60 to-transparent" />
-        {/* Efeito de overlay moderno */}
-        <div className="absolute inset-0 bg-linear-to-br from-[#C4161C]/20 via-transparent to-[#283583]/20" />
-      </div>
-
-      {/* Content */}
-      <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-end pb-20">
-        <div className="max-w-4xl space-y-6">
-          {post.category && (
-            <span
-              className="inline-block px-5 py-2.5 text-sm font-black uppercase tracking-wider shadow-2xl rounded-lg backdrop-blur-sm"
-              style={{
-                backgroundColor: post.category.color,
-                color: "white",
-              }}
-            >
-              {post.category.name}
-            </span>
-          )}
-
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white drop-shadow-2xl leading-none uppercase tracking-tighter line-clamp-2 sm:line-clamp-2 md:line-clamp-1">
-            {post.title}
-          </h1>
-
-          {post.description && (
-            <p className="text-base sm:text-lg md:text-xl text-white/95 drop-shadow-lg font-bold max-w-3xl line-clamp-3 sm:line-clamp-2 md:line-clamp-2 lg:line-clamp-1">
-              {post.description}
-            </p>
-          )}
-
-          <div className="flex flex-wrap items-center gap-6 text-white/90 text-sm font-bold">
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-              <Calendar className="w-4 h-4" />
-              <span>
-                {new Date(
-                  post.publishedAt || post.createdAt,
-                ).toLocaleDateString("pt-BR")}
-              </span>
+    <section className="relative bg-white">
+      <Link href={`/posts/${post.slug}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-4 ">
+            {/* Image */}
+            <div style={{borderColor: post.category.color}} className="relative aspect-4/3 overflow-hidden rounded-md border-b-15">
+              {post.photoUrl ? (
+                <Image
+                  src={post.photoUrl}
+                  alt={post.title}
+                  width={1200}
+                  height={900}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-linear-to-br from-[#C4161C] via-[#283583] to-[#5FAD56]" />
+              )}
             </div>
-
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-              <Clock className="w-4 h-4" />
-              <span>{Math.ceil(post.content.split(" ").length / 200)} min</span>
+            {/* Content */}
+            <div className="md:space-y-5">
+              {post.category && (
+                <span
+                  className="inline-block px-3 py-1 text-xs font-bold uppercase tracking-wider rounded"
+                  style={{
+                    backgroundColor: post.category.color,
+                    color: "white",
+                  }}
+                >
+                  {post.category.name}
+                </span>
+              )}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                {post.title}
+              </h1>
+              {post.description && (
+                <p className="text-lg text-gray-600 leading-relaxed">
+                  {post.description}
+                </p>
+              )}
             </div>
           </div>
-
-          <Link
-            href={`/posts/${post.slug}`}
-            className="inline-flex items-center gap-3 px-10 py-5 bg-linear-to-r from-[#C4161C] to-[#e01b22] hover:from-[#a01318] hover:to-[#C4161C] text-white font-black uppercase tracking-wide text-lg transition-all duration-300 hover:shadow-2xl hover:shadow-red-500/50 hover:scale-105 group rounded-xl"
-          >
-            <span>Leia Agora</span>
-            <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
-          </Link>
         </div>
-      </div>
+      </Link>
     </section>
   );
 }
-
 function TrendingCard({
   post,
   rank,
@@ -401,7 +399,10 @@ function CompactCard({
             <Newspaper className="w-10 h-10 text-gray-400" />
           </div>
         )}
-        <div style={{background: `${color}`}} className="absolute top-0 left-0 w-6 h-3"></div>
+        <div
+          style={{ background: `${color}` }}
+          className="absolute top-0 left-0 w-6 h-3"
+        ></div>
       </div>
       <div className="flex-1 min-w-0 space-y-2">
         <h4 className="font-black text-black transition-colors line-clamp-3 text-base leading-tight">
@@ -648,7 +649,6 @@ function EmptyState({
   );
 }
 
-
 /**
  * Extrai palavras-chave significativas do título
  * Remove artigos, preposições e palavras comuns
@@ -656,45 +656,75 @@ function EmptyState({
  */
 function extractKeywords(title: string): string {
   const stopWords = [
-    'o', 'a', 'os', 'as', 'um', 'uma', 'uns', 'umas',
-    'de', 'da', 'do', 'das', 'dos', 'em', 'no', 'na', 'nos', 'nas',
-    'para', 'com', 'por', 'sobre', 'ao', 'aos', 'à', 'às',
-    'e', 'ou', 'que', 'se', 'mais', 'muito', 'nova', 'novo'
+    "o",
+    "a",
+    "os",
+    "as",
+    "um",
+    "uma",
+    "uns",
+    "umas",
+    "de",
+    "da",
+    "do",
+    "das",
+    "dos",
+    "em",
+    "no",
+    "na",
+    "nos",
+    "nas",
+    "para",
+    "com",
+    "por",
+    "sobre",
+    "ao",
+    "aos",
+    "à",
+    "às",
+    "e",
+    "ou",
+    "que",
+    "se",
+    "mais",
+    "muito",
+    "nova",
+    "novo",
   ];
 
-  const words = title.toLowerCase()
-    .replace(/[^\w\s]/g, '')
-    .split(' ')
-    .filter(word => word.length > 0);
+  const words = title
+    .toLowerCase()
+    .replace(/[^\w\s]/g, "")
+    .split(" ")
+    .filter((word) => word.length > 0);
 
-  const keywords = words.filter(word => 
-    !stopWords.includes(word) && word.length > 2
+  const keywords = words.filter(
+    (word) => !stopWords.includes(word) && word.length > 2,
   );
 
   const selectedKeywords = keywords.slice(0, 2);
-  
+
   return selectedKeywords
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
-async function MostReadSection () {
-
-  const posts = await postService.findMostViewed()
+async function MostReadSection() {
+  const posts = await postService.findMostViewed();
 
   return (
-    <section className="relative">
+    <section className="relative w-full mx-auto">
       {/* Container */}
       <div className="bg-white border-b-2 border-gray-200 px-4">
         {/* Carrossel Horizontal - Design minimalista */}
         <div className="relative">
           {/* Scroll Container */}
           <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex items-center gap-8 min-w-max">
-              <p className="font-extralight text-gray-900">Mais Lidos</p>
+            <div className="flex items-center gap-8 w-fit mx-auto">
+              <p className="font-extralight text-gray-900 whitespace-nowrap">Mais Lidos</p>
               {posts.map((article) => {
                 const keywords = extractKeywords(article.title);
-                
+
                 return (
                   <Link
                     key={article.id}
@@ -704,7 +734,7 @@ async function MostReadSection () {
                     {/* Texto com palavras-chave */}
                     <span className="text-[#283583] hover:text-[#C4161C] font-bold uppercase text-sm tracking-wide transition-all duration-300 whitespace-nowrap relative">
                       {keywords}
-                      
+
                       {/* Underline indicator (aparece no hover ou se ativo) */}
                       <span className="absolute -bottom-2 left-0 w-0 h-1 bg-[#C4161C] group-hover:w-full transition-all duration-300 rounded-full" />
                     </span>
@@ -717,4 +747,4 @@ async function MostReadSection () {
       </div>
     </section>
   );
-};
+}
