@@ -4,6 +4,7 @@ import Image from "next/image";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { SearchButton } from "../molecules/SearchBarPost";
+import { MenuMobile } from "../molecules/MenuMobile";
 
 export const Header = async ({
   currentCategory,
@@ -19,10 +20,10 @@ export const Header = async ({
   const remainingCategories = hasMoreCategories ? allCategories.slice(5) : [];
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b-4 border-[#C4161C] shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+    <header className="sticky top-0 z-50 bg-white border-b-4 border-[#C4161C] shadow-lg">
+      <div className="max-w-7xl mx-auto px-0 md:px-6 lg:px-8 py-5">
         {/* Linha Principal: Logo + Nav Desktop + Search + Área Jornalista */}
-        <div className="flex items-center justify-between gap-4 mb-4">
+        <div className="flex items-center justify-between gap-4 mb-4 px-4 md:px-0">
           <Link
             href="/"
             className="shrink-0 transform hover:scale-105 transition-transform"
@@ -158,56 +159,11 @@ export const Header = async ({
           </div>
         </div>
 
-        {/* Menu Mobile - Carrossel Horizontal com TODAS as categorias */}
-        <nav className="flex lg:hidden items-center gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
-          <Link
-            href="/"
-            className="text-gray-900 hover:text-[#C4161C] font-black uppercase text-xs tracking-wide transition-all whitespace-nowrap snap-start shrink-0 px-1"
-          >
-            Início
-          </Link>
-          
-          {allCategories.map((category) => {
-            const isActive = category.name === currentCategory;
-            return (
-              <Link
-                key={category.id}
-                href={`/categorias/${category.slug}`}
-                className={`font-black uppercase text-xs tracking-wide transition-all whitespace-nowrap snap-start shrink-0 px-1 relative ${
-                  isActive ? "pb-1" : ""
-                }`}
-                style={isActive ? { color: category.color } : {}}
-              >
-                {category.name}
-                {isActive && (
-                  <span
-                    className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-                    style={{ backgroundColor: category.color }}
-                  />
-                )}
-              </Link>
-            );
-          })}
-          
-          {/* Indicador visual de scroll */}
-          {allCategories.length > 3 && (
-            <div className="shrink-0 w-8 h-8 flex items-center justify-center text-gray-400 animate-pulse">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </div>
-          )}
-        </nav>
+        {/* Menu Mobile usando componente */}
+        <MenuMobile 
+          allCategories={allCategories}
+          currentCategory={currentCategory}
+        />
 
         {/* Botão Área do Jornalista Mobile */}
         {session?.user && (

@@ -153,6 +153,13 @@ export class PostService {
   }
 
   /**
+ * Buscar posts mais visualizados
+ */
+  async findMostViewed(limit = 5): Promise<PostWithRelations[]> {
+    return postRepository.findMostViewed(limit);
+  }
+
+  /**
    * Buscar post por slug
    */
   async findBySlug(slug: string): Promise<Post | undefined> {

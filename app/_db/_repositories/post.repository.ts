@@ -95,6 +95,7 @@ export class PostRepository {
           id: users.id,
           name: users.name,
           role: users.role,
+          photoProfile: users.photoProfile
         },
         category: {
           id: categories.id,
@@ -340,6 +341,46 @@ export class PostRepository {
 
     return result?.count || 0;
   }
+
+  async findMostViewed(limit = 5): Promise<PostWithRelations[]> {
+  const result = await db
+    .select({
+      id: posts.id,
+      title: posts.title,
+      slug: posts.slug,
+      description: posts.description,
+      content: posts.content,
+      photoUrl: posts.photoUrl,
+      tags: posts.tags,
+      views: posts.views,
+      authorId: posts.authorId,
+      categoryId: posts.categoryId,
+      published: posts.published,
+      createdAt: posts.createdAt,
+      updatedAt: posts.updatedAt,
+      publishedAt: posts.publishedAt,
+      author: {
+        id: users.id,
+        name: users.name,
+        role: users.role,
+      },
+      category: {
+        id: categories.id,
+        name: categories.name,
+        color: categories.color,
+        slug: categories.slug,
+      },
+    })
+    .from(posts)
+    .innerJoin(users, eq(posts.authorId, users.id))
+    .innerJoin(categories, eq(posts.categoryId, categories.id))
+    .where(eq(posts.published, true))
+    .orderBy(desc(posts.views))
+    .limit(limit);
+
+  return result as PostWithRelations[];
+}
+
 }
 
 export const postRepository = new PostRepository();

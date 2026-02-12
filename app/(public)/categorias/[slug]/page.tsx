@@ -6,6 +6,7 @@ import { PostWithRelations } from "@/app/_types/Post";
 import { notFound } from "next/navigation";
 import { categoryService } from "@/app/_services/categorie.service";
 import { Header } from "@/app/_components/organisms/Header";
+import { PostCard } from "@/app/_components/molecules/PostCard";
 
 interface CategoryPageProps {
   params: {
@@ -121,7 +122,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                     <PostCard
                       key={post.id}
                       post={post}
-                      categoryColor={category.color}
                     />
                   ))}
                 </div>
@@ -205,57 +205,6 @@ function FeaturedPostCard({
   );
 }
 
-function PostCard({
-  post,
-  categoryColor,
-}: {
-  post: PostWithRelations;
-  categoryColor: string;
-}) {
-  return (
-    <Link
-      href={`/posts/${post.slug}`}
-      className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-t-4"
-      style={{ borderColor: categoryColor }}
-    >
-      <div className="relative h-56 overflow-hidden bg-gray-100">
-        {post.photoUrl ? (
-          <Image
-            width={1200}
-            height={1200}
-            src={post.photoUrl}
-            alt={post.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-          />
-        ) : (
-          <div className="w-full h-full bg-linear-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-            <Newspaper className="w-20 h-20 text-gray-400" />
-          </div>
-        )}
-      </div>
-
-      <div className="p-6 space-y-3">
-        <h3 className="text-xl font-black text-gray-900 group-hover:opacity-80 transition-opacity line-clamp-2 leading-tight">
-          {post.title}
-        </h3>
-
-        {post.description && (
-          <p className="text-gray-600 text-sm line-clamp-2 font-medium">
-            {post.description}
-          </p>
-        )}
-
-        <div className="flex items-center justify-between text-xs text-gray-500 pt-4 border-t-2 border-gray-100 font-bold">
-          <span>
-            {new Date(post.publishedAt || post.createdAt).toLocaleDateString(
-              "pt-BR",
-            )}
-          </span>
-        </div>
-      </div>
-    </Link>
-  );
-}
 
 function EmptyCategory({
   categoryName,

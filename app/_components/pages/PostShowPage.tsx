@@ -29,7 +29,7 @@ export const PostShowPage = async ({ slug }: PostShowPageProps) => {
     borderColor: `${postWithRelations.category?.color}55`,
   };
 
-  const session = await getServerSession();
+  
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-blue-50">
