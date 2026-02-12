@@ -130,131 +130,135 @@ export const HomePage = async () => {
         </div>
 
         {/* Seções por Categoria - Layout Magazine */}
-{categories.length > 0
-  ? categories.map((category, idx) => (
-      <section
-        key={category.name}
-        className={`space-y-8 ${idx % 2 === 1 ? "relative" : ""}`}
-      >
-        {/* Fundo azul fullwidth (absolute) */}
-        {idx % 2 === 1 && (
-          <div className="absolute inset-0 left-[50%] right-[50%] ml-[-50vw] mr-[-50vw] w-screen bg-linear-to-br from-[#283583] via-[#1e2660] to-[#283583] overflow-hidden">
-            {/* Efeitos decorativos */}
-            <div className="absolute top-0 left-0 w-64 h-64 bg-[#C4161C]/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 right-0 w-64 h-64 bg-[#5FAD56]/10 rounded-full blur-3xl" />
-          </div>
-        )}
-
-        {/* Conteúdo (relative para ficar acima do fundo) */}
-        <div className={`relative ${idx % 2 === 1 ? "py-16" : ""}`}>
-          <div className="flex items-center gap-4">
-            <div
-              className="h-12 w-2 rounded-full"
-              style={{
-                background: `linear-gradient(to bottom, ${category.color}, ${category.color}dd)`,
-              }}
-            />
-            <div className="flex items-center justify-between flex-1 relative">
-              {
-                idx % 2 === 1 &&
-                  <span style={{background: `linear-gradient(to bottom, ${category.color}, ${category.color}dd)`}} className="w-[107%] md:w-[103%] h-0.5 absolute -bottom-2.5 -left-6 rounded-full"></span>
-              }
-              <h2
-                className={`text-4xl font-black uppercase tracking-tight ${
-                  idx % 2 === 1 ? "text-white" : "text-gray-900"
-                }`}
+        {categories.length > 0
+          ? categories.map((category, idx) => (
+              <section
+                key={category.name}
+                className={`space-y-8 ${idx % 2 === 1 ? "relative" : ""}`}
               >
-                {category.name}
-              </h2>
-              <Link
-                href={`/categorias/${category.slug}`}
-                className={`text-sm font-black uppercase tracking-wide hover:underline transition-all ${
-                  idx % 2 === 1 ? "text-white" : ""
-                }`}
-                style={idx % 2 === 1 ? {} : { color: category.color }}
-              >
-                Ver todas →
-              </Link>
-            </div>
-          </div>
+                {/* Fundo azul fullwidth (absolute) */}
+                {idx % 2 === 1 && (
+                  <div className="absolute inset-0 left-[50%] right-[50%] ml-[-50vw] mr-[-50vw] w-screen bg-linear-to-br from-[#283583] via-[#1e2660] to-[#283583] overflow-hidden">
+                    {/* Efeitos decorativos */}
+                    <div className="absolute top-0 left-0 w-64 h-64 bg-[#C4161C]/10 rounded-full blur-3xl" />
+                    <div className="absolute bottom-0 right-0 w-64 h-64 bg-[#5FAD56]/10 rounded-full blur-3xl" />
+                  </div>
+                )}
 
-          {/* Layout alternado */}
-          {idx % 2 === 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-              {/* Featured Large */}
-              {category.posts[0] && (
-                <Link
-                  href={`/posts/${category.posts[0].slug}`}
-                  className="group md:row-span-2 relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500"
-                >
-                  <div className="relative h-full min-h-100">
-                    {category.posts[0].photoUrl ? (
-                      <Image
-                        src={category.posts[0].photoUrl}
-                        alt={category.posts[0].title}
-                        width={1200}
-                        height={1200}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                      />
-                    ) : (
-                      <div
-                        className="w-full h-full"
-                        style={{
-                          background: `linear-gradient(135deg, ${category.color}40, ${category.color}80)`,
-                        }}
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/50 to-transparent" />
-
-                    <div className="absolute bottom-0 left-0 right-0 p-8">
-                      <span
-                        className="inline-block px-4 py-2 text-xs font-black uppercase mb-4 rounded-lg shadow-lg"
-                        style={{
-                          backgroundColor: category.color,
-                          color: "white",
-                        }}
+                {/* Conteúdo (relative para ficar acima do fundo) */}
+                <div className={`relative ${idx % 2 === 1 ? "py-16" : ""}`}>
+                  <div className="flex items-center gap-4">
+                    <div
+                      className="h-12 w-2 rounded-full"
+                      style={{
+                        background: `linear-gradient(to bottom, ${category.color}, ${category.color}dd)`,
+                      }}
+                    />
+                    <div className="flex items-center justify-between flex-1 relative">
+                      {idx % 2 === 1 && (
+                        <span
+                          style={{
+                            background: `linear-gradient(to bottom, ${category.color}, ${category.color}dd)`,
+                          }}
+                          className="w-[107%] md:w-[103%] h-0.5 absolute -bottom-2.5 -left-6 rounded-full"
+                        ></span>
+                      )}
+                      <h2
+                        className={`text-4xl font-black uppercase tracking-tight ${
+                          idx % 2 === 1 ? "text-white" : "text-gray-900"
+                        }`}
                       >
                         {category.name}
-                      </span>
-                      <h3 className="text-3xl font-black text-white leading-tight mb-3 group-hover:text-[#F9C74F] transition-colors">
-                        {category.posts[0].title}
-                      </h3>
-                      {category.posts[0].description && (
-                        <p className="text-white/90 text-sm line-clamp-2 font-medium">
-                          {category.posts[0].description}
-                        </p>
-                      )}
+                      </h2>
+                      <Link
+                        href={`/categorias/${category.slug}`}
+                        className={`text-sm font-black uppercase tracking-wide hover:underline transition-all ${
+                          idx % 2 === 1 ? "text-white" : ""
+                        }`}
+                        style={idx % 2 === 1 ? {} : { color: category.color }}
+                      >
+                        Ver todas →
+                      </Link>
                     </div>
                   </div>
-                </Link>
-              )}
 
-              {/* 3 cards menores */}
-              <div className="space-y-6">
-                {category.posts.slice(1, 4).map((post) => (
-                  <CompactCard
-                    key={post.id}
-                    post={post}
-                    color={category.color}
-                  />
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
-              {category.posts.map((post) => (
-                <VerticalCard
-                  key={post.id}
-                  post={post}
-                  color={category.color}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-    ))
-  : null}
+                  {/* Layout alternado */}
+                  {idx % 2 === 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                      {/* Featured Large */}
+                      {category.posts[0] && (
+                        <Link
+                          href={`/posts/${category.posts[0].slug}`}
+                          className="group md:row-span-2 relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500"
+                        >
+                          <div className="relative h-full min-h-100">
+                            {category.posts[0].photoUrl ? (
+                              <Image
+                                src={category.posts[0].photoUrl}
+                                alt={category.posts[0].title}
+                                width={1200}
+                                height={1200}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                              />
+                            ) : (
+                              <div
+                                className="w-full h-full"
+                                style={{
+                                  background: `linear-gradient(135deg, ${category.color}40, ${category.color}80)`,
+                                }}
+                              />
+                            )}
+                            <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/50 to-transparent" />
+
+                            <div className="absolute bottom-0 left-0 right-0 p-8">
+                              <span
+                                className="inline-block px-4 py-2 text-xs font-black uppercase mb-4 rounded-lg shadow-lg"
+                                style={{
+                                  backgroundColor: category.color,
+                                  color: "white",
+                                }}
+                              >
+                                {category.name}
+                              </span>
+                              <h3 className="text-3xl font-black text-white leading-tight mb-3 group-hover:text-[#F9C74F] transition-colors">
+                                {category.posts[0].title}
+                              </h3>
+                              {category.posts[0].description && (
+                                <p className="text-white/90 text-sm line-clamp-2 font-medium">
+                                  {category.posts[0].description}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </Link>
+                      )}
+
+                      {/* 3 cards menores */}
+                      <div className="space-y-6">
+                        {category.posts.slice(1, 4).map((post) => (
+                          <CompactCard
+                            key={post.id}
+                            post={post}
+                            color={category.color}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+                      {category.posts.map((post) => (
+                        <VerticalCard
+                          key={post.id}
+                          post={post}
+                          color={category.color}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </section>
+            ))
+          : null}
       </main>
 
       {/* Footer */}
@@ -270,7 +274,10 @@ function HeroSection({ post }: { post: PostWithRelations }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-4 ">
             {/* Image */}
-            <div style={{borderColor: post.category.color}} className="relative aspect-4/3 overflow-hidden rounded-md border-b-15">
+            <div
+              style={{ borderColor: post.category.color }}
+              className="relative aspect-4/3 overflow-hidden rounded-md border-b-15"
+            >
               {post.photoUrl ? (
                 <Image
                   src={post.photoUrl}
@@ -529,7 +536,6 @@ async function MetricsWidgets() {
   );
 }
 
-
 function EmptyState({
   allCategories,
 }: {
@@ -573,45 +579,16 @@ function EmptyState({
  */
 function extractKeywords(title: string): string {
   const stopWords = [
-    "o",
-    "a",
-    "os",
-    "as",
-    "um",
-    "uma",
-    "uns",
-    "umas",
-    "de",
-    "da",
-    "do",
-    "das",
-    "dos",
-    "em",
-    "no",
-    "na",
-    "nos",
-    "nas",
-    "para",
-    "com",
-    "por",
-    "sobre",
-    "ao",
-    "aos",
-    "à",
-    "às",
-    "e",
-    "ou",
-    "que",
-    "se",
-    "mais",
-    "muito",
-    "nova",
-    "novo",
+    "o", "a", "os", "as", "um", "uma", "uns", "umas",
+    "de", "da", "do", "das", "dos", "em", "no", "na",
+    "nos", "nas", "para", "com", "por", "sobre", "ao",
+    "aos", "à", "às", "e", "ou", "que", "se", "mais",
+    "muito", "nova", "novo",
   ];
 
   const words = title
     .toLowerCase()
-    .replace(/[^\w\s]/g, "")
+    .replace(/[^a-záàâãéêíóôõúçüñ\s]/gi, "") // ← Preserva acentos PT-BR
     .split(" ")
     .filter((word) => word.length > 0);
 
@@ -638,7 +615,9 @@ async function MostReadSection() {
           {/* Scroll Container */}
           <div className="overflow-x-auto scrollbar-hide">
             <div className="flex items-center gap-8 w-fit mx-auto">
-              <p className="font-extralight text-gray-900 whitespace-nowrap">Mais Lidos</p>
+              <p className="font-extralight text-gray-900 whitespace-nowrap">
+                Mais Lidos
+              </p>
               {posts.map((article) => {
                 const keywords = extractKeywords(article.title);
 
