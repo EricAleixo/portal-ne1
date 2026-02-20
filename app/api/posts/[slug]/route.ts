@@ -54,6 +54,7 @@ export async function PUT(
 ) {
   try {
     const session = await getSessionOrThrow();
+    if(!session || !session.user.id) throw new Error("Erro com as credenciais, faça o login novamente"); 
     const resolvedParams = await params; // agora realmente é Promise
     const { slug } = resolvedParams;
 
@@ -108,6 +109,7 @@ export async function DELETE(
 ) {
   try {
     const session = await getSessionOrThrow();
+    if(!session || !session.user.id) throw new Error("Erro com as credenciais, faça o login novamente"); 
     const resolvedParams = await params; // Promise resolvida
     const { slug } = resolvedParams;
 

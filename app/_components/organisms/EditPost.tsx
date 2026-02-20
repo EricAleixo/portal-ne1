@@ -40,6 +40,7 @@ export const EditPost: React.FC<EditPostProps> = ({
       setTimeout(() => router.push("/journalist/posts"), 1500);
     } catch (error) {
       toast.error("Senha inválida!");
+      console.log(error)
     }
   };
 

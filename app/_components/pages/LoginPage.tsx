@@ -40,6 +40,7 @@ export const LoginPage = () => {
       setTimeout(() => router.push("/journalist/posts"), TEMPO_LOGIN);
     } catch (err) {
       toast.error("Erro ao fazer login. Tente novamente.");
+      console.log(err);
     } finally {
       setIsLoading(false);
     }

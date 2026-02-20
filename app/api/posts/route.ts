@@ -7,6 +7,7 @@ import { createPostSchema, passwordConfirmationSchema } from "@/app/_types/Post"
 export async function GET(req: NextRequest) {
   try {
     const session = await getSessionOrThrow();
+    if(!session || !session.user.id) throw new Error("Erro com as credenciais, faça o login novamente"); 
 
     const { searchParams } = new URL(req.url);
     const limit = Number(searchParams.get("limit")) || 20;
@@ -31,6 +32,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getSessionOrThrow();
+    if(!session || !session.user.id) throw new Error("Erro com as credenciais, faça o login novamente"); 
     const formData = await req.formData();
 
     const rawCategoryId = formData.get("categoryId");

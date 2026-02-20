@@ -1,20 +1,20 @@
 import { categoryService } from "@/app/_services/categorie.service";
 import Link from "next/link";
 import Image from "next/image";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { SearchButton } from "../molecules/SearchBarPost";
 import { MenuMobile } from "../molecules/MenuMobile";
+import { getSessionOrThrow } from "@/app/api/_utils/session";
 
 export const Header = async ({
   currentCategory,
 }: {
   currentCategory?: string;
 }) => {
-  const allCategories = await categoryService.getAll();
-  const session = await getServerSession(authOptions);
-  
-  // Condição: primeiras 5 no desktop, todas no dropdown se passar de 5
+  const [allCategories, session] = await Promise.all([
+    categoryService.getAll().catch(() => []),
+    getSessionOrThrow().catch(() => null),
+  ]);
+
   const primaryCategories = allCategories.slice(0, 5);
   const hasMoreCategories = allCategories.length > 5;
   const remainingCategories = hasMoreCategories ? allCategories.slice(5) : [];
@@ -160,7 +160,7 @@ export const Header = async ({
         </div>
 
         {/* Menu Mobile usando componente */}
-        <MenuMobile 
+        <MenuMobile
           allCategories={allCategories}
           currentCategory={currentCategory}
         />

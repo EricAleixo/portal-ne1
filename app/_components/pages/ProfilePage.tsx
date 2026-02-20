@@ -9,7 +9,7 @@ import { Calendar, CheckCircle2, XCircle, Mail, Shield, User } from "lucide-reac
 export const ProfilePage = async () => {
   const session = await getSessionOrThrow();
   
-  if (!session.user.name) {
+  if (!session || !session.user.name) {
     notFound();
   }
   

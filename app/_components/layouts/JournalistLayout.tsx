@@ -1,15 +1,23 @@
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ReactNode } from "react"
 import { Sidebar } from "../organisms/SideBar";
 import { JournalismHeader } from "../organisms/JournalismHeader";
 import { getSessionOrThrow } from "@/app/api/_utils/session";
 
 export const JournalistLayout = async ({children} : {children: ReactNode}) => {
-  const session = await getSessionOrThrow();
 
-  if (!session?.user?.name || !session.user.active) {
-    redirect("/login");
+  let session;
+
+  try{
+    session = await getSessionOrThrow();
+  }catch{
+    if (!session?.user?.name || !session.user.active) {
+      notFound();
+    }
   }
+
+  if (!session?.user?.name || !session.user.active) return redirect("/");
+
 
   return (
     <div className="flex min-h-screen bg-linear-to-br from-gray-50 to-gray-100">

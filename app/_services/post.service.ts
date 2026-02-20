@@ -90,6 +90,7 @@ export class PostService {
     const isPasswordValid = await this.validateUserPassword(userId, password);
 
     if (!isPasswordValid) {
+      console.log("Senha errada no service")
       throw new Error("Senha inválida");
     }
 
@@ -124,6 +125,7 @@ export class PostService {
     const isPasswordValid = await this.validateUserPassword(userId, password);
 
     if (!isPasswordValid) {
+      console.log("Senha errada no service")
       throw new Error("Senha inválida");
     }
 

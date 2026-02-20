@@ -26,6 +26,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
       setTimeout(() => router.push("/journalist/posts"), 1500);
     } catch (error) {
       toast.error("Senha inválida!");
+      console.log(error);
       throw error;
     }
   };

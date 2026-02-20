@@ -7,6 +7,7 @@ export default async function UserLayout({children}: {children: ReactNode}){
 
     try{
         const session = await getSessionOrThrow();
+        if(!session) return notFound();
         const { user } = session;
         if(!(user.role === "ADMIN")){
             notFound();
