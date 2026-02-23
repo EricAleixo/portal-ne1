@@ -1,15 +1,7 @@
 import { postService } from "@/app/_services/post.service";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Calendar,
-  ArrowRight,
-  Clock,
-  Newspaper,
-  DollarSign,
-  TrendingUp,
-  TrendingDown,
-} from "lucide-react";
+import { Newspaper, DollarSign, TrendingUp, TrendingDown } from "lucide-react";
 import { PostWithRelations } from "@/app/_types/Post";
 import { categoryService } from "@/app/_services/categorie.service";
 import { Header } from "../organisms/Header";
@@ -38,14 +30,12 @@ export const HomePage = async () => {
     {} as Record<string, PostWithRelations[]>,
   );
 
-  const categories = Object.entries(postsByCategory)
-    .map(([name, posts]) => ({
-      name,
-      slug: posts[0]?.category?.slug,
-      posts: posts.slice(0, 4).reverse(),
-      color: posts[0]?.category?.color || "#283583",
-    }))
-    .slice(0, 3);
+  const categories = Object.entries(postsByCategory).map(([name, posts]) => ({
+    name,
+    slug: posts[0]?.category?.slug,
+    posts: posts.slice(0, 4).reverse(),
+    color: posts[0]?.category?.color || "#283583",
+  }));
 
   if (allPosts.length === 0) {
     return <EmptyState allCategories={allCategories} />;
@@ -61,6 +51,25 @@ export const HomePage = async () => {
         <MostReadSection />
         {/* Hero Section - Destaque Principal */}
         {featuredPost && <HeroSection post={featuredPost} />}
+      </div>
+
+      {/* Banner Publicitário */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <Link
+          href="https://www.guarabira.pb.gov.br/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <div className="w-full rounded-xl overflow-hidden">
+            <Image
+              src={"/images/banner_guarabira.gif"}
+              alt="Banner de Guarabira"
+              width={1200}
+              height={250}
+              className="w-full h-auto object-cover"
+            />
+          </div>
+        </Link>
       </div>
 
       {/* Container Principal */}
@@ -579,11 +588,40 @@ function EmptyState({
  */
 function extractKeywords(title: string): string {
   const stopWords = [
-    "o", "a", "os", "as", "um", "uma", "uns", "umas",
-    "de", "da", "do", "das", "dos", "em", "no", "na",
-    "nos", "nas", "para", "com", "por", "sobre", "ao",
-    "aos", "à", "às", "e", "ou", "que", "se", "mais",
-    "muito", "nova", "novo",
+    "o",
+    "a",
+    "os",
+    "as",
+    "um",
+    "uma",
+    "uns",
+    "umas",
+    "de",
+    "da",
+    "do",
+    "das",
+    "dos",
+    "em",
+    "no",
+    "na",
+    "nos",
+    "nas",
+    "para",
+    "com",
+    "por",
+    "sobre",
+    "ao",
+    "aos",
+    "à",
+    "às",
+    "e",
+    "ou",
+    "que",
+    "se",
+    "mais",
+    "muito",
+    "nova",
+    "novo",
   ];
 
   const words = title
