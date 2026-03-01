@@ -53,9 +53,9 @@ export class PostRepository {
   async countAll(userId?: number): Promise<number> {
     const query = userId
       ? db
-          .select({ count: count() })
-          .from(posts)
-          .where(eq(posts.authorId, userId))
+        .select({ count: count() })
+        .from(posts)
+        .where(eq(posts.authorId, userId))
       : db.select({ count: count() }).from(posts);
 
     const result = await query;
@@ -156,14 +156,14 @@ export class PostRepository {
   }
 
   async findAll(
-    limit = 20,
-    offset = 0,
+    limit?: number,
+    offset?: number,
     authorId?: number,
   ): Promise<PostWithRelations[]> {
     const condition =
       authorId !== undefined ? eq(posts.authorId, authorId) : undefined;
 
-    const result = await db
+    const baseQuery = db
       .select({
         id: posts.id,
         title: posts.title,
@@ -194,9 +194,15 @@ export class PostRepository {
       .innerJoin(users, eq(posts.authorId, users.id))
       .innerJoin(categories, eq(posts.categoryId, categories.id))
       .where(condition)
-      .orderBy(desc(posts.createdAt))
-      .limit(limit)
-      .offset(offset);
+      .orderBy(desc(posts.createdAt));
+
+    // ✅ Aqui evitamos reatribuir
+    const query =
+      limit !== undefined && offset !== undefined
+        ? baseQuery.limit(limit).offset(offset)
+        : baseQuery;
+
+    const result = await query;
 
     return result as PostWithRelations[];
   }
@@ -274,9 +280,9 @@ export class PostRepository {
 
     const conditions = publishedOnly
       ? and(
-          sql`LOWER(${posts.title}) LIKE LOWER(${searchPattern})`,
-          eq(posts.published, true),
-        )
+        sql`LOWER(${posts.title}) LIKE LOWER(${searchPattern})`,
+        eq(posts.published, true),
+      )
       : sql`LOWER(${posts.title}) LIKE LOWER(${searchPattern})`;
 
     const result = await db
@@ -329,9 +335,9 @@ export class PostRepository {
 
     const conditions = publishedOnly
       ? and(
-          sql`LOWER(${posts.title}) LIKE LOWER(${searchPattern})`,
-          eq(posts.published, true),
-        )
+        sql`LOWER(${posts.title}) LIKE LOWER(${searchPattern})`,
+        eq(posts.published, true),
+      )
       : sql`LOWER(${posts.title}) LIKE LOWER(${searchPattern})`;
 
     const [result] = await db
@@ -343,43 +349,43 @@ export class PostRepository {
   }
 
   async findMostViewed(limit = 5): Promise<PostWithRelations[]> {
-  const result = await db
-    .select({
-      id: posts.id,
-      title: posts.title,
-      slug: posts.slug,
-      description: posts.description,
-      content: posts.content,
-      photoUrl: posts.photoUrl,
-      tags: posts.tags,
-      views: posts.views,
-      authorId: posts.authorId,
-      categoryId: posts.categoryId,
-      published: posts.published,
-      createdAt: posts.createdAt,
-      updatedAt: posts.updatedAt,
-      publishedAt: posts.publishedAt,
-      author: {
-        id: users.id,
-        name: users.name,
-        role: users.role,
-      },
-      category: {
-        id: categories.id,
-        name: categories.name,
-        color: categories.color,
-        slug: categories.slug,
-      },
-    })
-    .from(posts)
-    .innerJoin(users, eq(posts.authorId, users.id))
-    .innerJoin(categories, eq(posts.categoryId, categories.id))
-    .where(eq(posts.published, true))
-    .orderBy(desc(posts.views))
-    .limit(limit);
+    const result = await db
+      .select({
+        id: posts.id,
+        title: posts.title,
+        slug: posts.slug,
+        description: posts.description,
+        content: posts.content,
+        photoUrl: posts.photoUrl,
+        tags: posts.tags,
+        views: posts.views,
+        authorId: posts.authorId,
+        categoryId: posts.categoryId,
+        published: posts.published,
+        createdAt: posts.createdAt,
+        updatedAt: posts.updatedAt,
+        publishedAt: posts.publishedAt,
+        author: {
+          id: users.id,
+          name: users.name,
+          role: users.role,
+        },
+        category: {
+          id: categories.id,
+          name: categories.name,
+          color: categories.color,
+          slug: categories.slug,
+        },
+      })
+      .from(posts)
+      .innerJoin(users, eq(posts.authorId, users.id))
+      .innerJoin(categories, eq(posts.categoryId, categories.id))
+      .where(eq(posts.published, true))
+      .orderBy(desc(posts.views))
+      .limit(limit);
 
-  return result as PostWithRelations[];
-}
+    return result as PostWithRelations[];
+  }
 
 }
 

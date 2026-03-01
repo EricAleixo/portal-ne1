@@ -190,18 +190,27 @@ export class PostService {
     userRole: string,
     limit = 10,
     offset = 0,
+    mode?: "all",
   ): Promise<{ posts: PostWithRelations[]; total: number }> {
-    let posts: PostWithRelations[];
-    let total: number;
+    const fetchAll = mode === "all";
+
+    let posts: PostWithRelations[] = [];
+    let total = 0;
 
     if (userRole === "ADMIN") {
-      posts = await postRepository.findAll(limit, offset);
+      posts = fetchAll
+        ? await postRepository.findAll()
+        : await postRepository.findAll(limit, offset);
+
       total = await postRepository.countAll();
     } else if (userId === undefined || userId === null) {
       posts = [];
       total = 0;
     } else {
-      posts = await postRepository.findAll(limit, offset, userId);
+      posts = fetchAll
+        ? await postRepository.findAll(undefined, undefined, userId)
+        : await postRepository.findAll(limit, offset, userId);
+
       total = await postRepository.countAll(userId);
     }
 
