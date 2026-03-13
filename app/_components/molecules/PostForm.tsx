@@ -16,6 +16,7 @@ import {
   Lightbulb,
   Eye,
   EyeOff,
+  Loader2,
 } from "lucide-react";
 import { Badge } from "@/app/_components/atoms/Badge";
 import Link from "next/link";
@@ -36,8 +37,7 @@ export interface PostFormData {
   title: string;
   description: string;
   tags: string[];
-  photo: File | null;
-  photoUrl: string | null;
+  photoUrl: string | null; // ✅ removido photo: File | null
   categoryId: number | string;
   content: string;
   published: boolean;
@@ -49,8 +49,7 @@ const DEFAULT_FORM_DATA: PostFormData = {
   title: "",
   description: "",
   tags: [],
-  photo: null,
-  photoUrl: null,
+  photoUrl: null, // ✅ removido photo: null
   categoryId: "",
   content: "",
   published: true,
@@ -79,35 +78,29 @@ export const PostForm: React.FC<PostFormProps> = ({
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  // Refs para evitar re-renders durante digitação
+
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const photoUrlRef = useRef<HTMLInputElement>(null);
   const editorRef = useRef<any>(null);
 
-  // Handle input changes - agora sem setState imediato
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
     const { name } = e.target;
-    
-    // Limpar erro se existir
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
-  // Handle checkbox change
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
     setFormData((prev) => ({ ...prev, [name]: checked }));
   };
 
-  // Handle tag input
   const handleTagInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
 
@@ -142,16 +135,8 @@ export const PostForm: React.FC<PostFormProps> = ({
 
   const addTag = () => {
     const tag = tagInput.trim().toLowerCase();
-
-    if (
-      tag &&
-      !formData.tags.includes(tag) &&
-      formData.tags.length < MAX_TAGS
-    ) {
-      setFormData((prev) => ({
-        ...prev,
-        tags: [...prev.tags, tag],
-      }));
+    if (tag && !formData.tags.includes(tag) && formData.tags.length < MAX_TAGS) {
+      setFormData((prev) => ({ ...prev, tags: [...prev.tags, tag] }));
       setTagInput("");
     }
   };
@@ -180,37 +165,68 @@ export const PostForm: React.FC<PostFormProps> = ({
     }));
   };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // ✅ handlePhotoChange agora faz upload imediato para /api/upload-image
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    if (!file) return;
 
-    if (file) {
-      if (!file.type.startsWith("image/")) {
+    if (!file.type.startsWith("image/")) {
+      setErrors((prev) => ({
+        ...prev,
+        photo: "Por favor, selecione uma imagem válida",
+      }));
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        photo: "A imagem deve ter no máximo 5MB",
+      }));
+      return;
+    }
+
+    // Preview local imediato enquanto faz upload
+    const reader = new FileReader();
+    reader.onloadend = () => setPhotoPreview(reader.result as string);
+    reader.readAsDataURL(file);
+
+    if (errors.photo) {
+      setErrors((prev) => ({ ...prev, photo: "" }));
+    }
+
+    setIsUploadingPhoto(true);
+
+    try {
+      const uploadData = new FormData();
+      uploadData.append("file", file);
+
+      const response = await fetch("/api/upload-image", {
+        method: "POST",
+        body: uploadData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
         setErrors((prev) => ({
           ...prev,
-          photo: "Por favor, selecione uma imagem válida",
+          photo: result.error || "Erro ao fazer upload da imagem",
         }));
+        setPhotoPreview(null);
         return;
       }
 
-      if (file.size > 5 * 1024 * 1024) {
-        setErrors((prev) => ({
-          ...prev,
-          photo: "A imagem deve ter no máximo 5MB",
-        }));
-        return;
-      }
-
-      setFormData((prev) => ({ ...prev, photo: file, photoUrl: null }));
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhotoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-
-      if (errors.photo) {
-        setErrors((prev) => ({ ...prev, photo: "" }));
-      }
+      // Guarda só a URL retornada pelo S3
+      setFormData((prev) => ({ ...prev, photoUrl: result.url }));
+    } catch {
+      setErrors((prev) => ({
+        ...prev,
+        photo: "Erro ao fazer upload da imagem",
+      }));
+      setPhotoPreview(null);
+    } finally {
+      setIsUploadingPhoto(false);
     }
   };
 
@@ -222,34 +238,22 @@ export const PostForm: React.FC<PostFormProps> = ({
 
   const handlePhotoUrlBlur = () => {
     const url = photoUrlRef.current?.value || "";
-    
-    setFormData((prev) => ({ ...prev, photoUrl: url, photo: null }));
-
-    if (url) {
-      setPhotoPreview(url);
-    } else {
-      setPhotoPreview(null);
-    }
+    setFormData((prev) => ({ ...prev, photoUrl: url }));
+    setPhotoPreview(url || null);
   };
 
   const removePhoto = () => {
-    setFormData((prev) => ({ ...prev, photo: null, photoUrl: null }));
+    setFormData((prev) => ({ ...prev, photoUrl: null }));
     setPhotoPreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-    if (photoUrlRef.current) {
-      photoUrlRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (photoUrlRef.current) photoUrlRef.current.value = "";
   };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Pegar valores das refs
     const title = titleRef.current?.value || "";
     const description = descriptionRef.current?.value || "";
-    const photoUrl = photoUrlRef.current?.value || "";
     const content = editorRef.current?.getContent() || "";
 
     if (!title.trim()) {
@@ -268,7 +272,7 @@ export const PostForm: React.FC<PostFormProps> = ({
       newErrors.categoryId = "Selecione uma categoria";
     }
 
-    if (!content.trim() || content === '<p></p>') {
+    if (!content.trim() || content === "<p></p>") {
       newErrors.content = "O conteúdo é obrigatório";
     }
 
@@ -276,8 +280,12 @@ export const PostForm: React.FC<PostFormProps> = ({
       newErrors.tags = "Adicione pelo menos uma tag";
     }
 
-    setErrors(newErrors);
+    // ✅ bloqueia submit se ainda estiver fazendo upload
+    if (isUploadingPhoto) {
+      newErrors.photo = "Aguarde o upload da imagem terminar";
+    }
 
+    setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -286,8 +294,6 @@ export const PostForm: React.FC<PostFormProps> = ({
     setIsSubmitting(true);
 
     const submitData = new FormData();
-    
-    // Pegar valores das refs para submissão
     submitData.append("title", titleRef.current?.value || "");
     submitData.append("description", descriptionRef.current?.value || "");
     submitData.append("content", editorRef.current?.getContent() || "");
@@ -295,8 +301,9 @@ export const PostForm: React.FC<PostFormProps> = ({
     submitData.append("categoryId", String(formData.categoryId));
     submitData.append("published", String(formData.published));
 
-    if (formData.photo) {
-      submitData.append("photoFile", formData.photo);
+    // ✅ sempre manda só a URL, nunca o arquivo
+    if (formData.photoUrl) {
+      submitData.append("photoUrl", formData.photoUrl);
     } else if (photoUrlRef.current?.value) {
       submitData.append("photoUrl", photoUrlRef.current.value);
     }
@@ -310,7 +317,6 @@ export const PostForm: React.FC<PostFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (validateForm()) {
       setShowPasswordModal(true);
     }
@@ -324,9 +330,10 @@ export const PostForm: React.FC<PostFormProps> = ({
   const buttonText =
     submitButtonText ||
     (mode === "create" ? "Salvar Postagem" : "Atualizar Postagem");
-  
-  // Encontrar a categoria selecionada para usar na pré-visualização
-  const selectedCategory = categories.find(c => c.id === Number(formData.categoryId));
+
+  const selectedCategory = categories.find(
+    (c) => c.id === Number(formData.categoryId)
+  );
 
   return (
     <>
@@ -362,11 +369,10 @@ export const PostForm: React.FC<PostFormProps> = ({
               name="title"
               defaultValue={formData.title}
               onChange={handleChange}
-              className={`w-full px-4 py-3 rounded-xl border ${
-                errors.title
-                  ? "border-red-300 bg-red-50/50"
-                  : "border-gray-200/60 bg-white/50"
-              } backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#283583]/20 focus:border-[#283583] transition-all duration-200`}
+              className={`w-full px-4 py-3 rounded-xl border ${errors.title
+                ? "border-red-300 bg-red-50/50"
+                : "border-gray-200/60 bg-white/50"
+                } backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#283583]/20 focus:border-[#283583] transition-all duration-200`}
               placeholder="Digite um título atraente para seu post..."
             />
             {errors.title && (
@@ -392,11 +398,10 @@ export const PostForm: React.FC<PostFormProps> = ({
               defaultValue={formData.description}
               onChange={handleChange}
               rows={3}
-              className={`w-full px-4 py-3 rounded-xl border ${
-                errors.description
-                  ? "border-red-300 bg-red-50/50"
-                  : "border-gray-200/60 bg-white/50"
-              } backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#283583]/20 focus:border-[#283583] transition-all duration-200 resize-y`}
+              className={`w-full px-4 py-3 rounded-xl border ${errors.description
+                ? "border-red-300 bg-red-50/50"
+                : "border-gray-200/60 bg-white/50"
+                } backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#283583]/20 focus:border-[#283583] transition-all duration-200 resize-y`}
               placeholder="Escreva uma breve descrição do post..."
             />
             {errors.description && (
@@ -433,13 +438,12 @@ export const PostForm: React.FC<PostFormProps> = ({
                 onPaste={handleTagPaste}
                 onBlur={addTag}
                 disabled={formData.tags.length >= MAX_TAGS}
-                className={`w-full px-4 py-3 rounded-xl border ${
-                  errors.tags
-                    ? "border-red-300 bg-red-50/50"
-                    : formData.tags.length >= MAX_TAGS
-                      ? "border-gray-200/60 bg-gray-100/50 cursor-not-allowed"
-                      : "border-gray-200/60 bg-white/50"
-                } backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#283583]/20 focus:border-[#283583] transition-all duration-200`}
+                className={`w-full px-4 py-3 rounded-xl border ${errors.tags
+                  ? "border-red-300 bg-red-50/50"
+                  : formData.tags.length >= MAX_TAGS
+                    ? "border-gray-200/60 bg-gray-100/50 cursor-not-allowed"
+                    : "border-gray-200/60 bg-white/50"
+                  } backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#283583]/20 focus:border-[#283583] transition-all duration-200`}
                 placeholder={
                   formData.tags.length >= MAX_TAGS
                     ? `Limite de ${MAX_TAGS} tags atingido`
@@ -484,20 +488,22 @@ export const PostForm: React.FC<PostFormProps> = ({
                   name="categoryId"
                   value={formData.categoryId}
                   onChange={(e) => {
-                    setFormData((prev) => ({ ...prev, categoryId: e.target.value }));
+                    setFormData((prev) => ({
+                      ...prev,
+                      categoryId: e.target.value,
+                    }));
                     if (errors.categoryId) {
                       setErrors((prev) => ({ ...prev, categoryId: "" }));
                     }
                   }}
-                  className={`w-full pl-10 pr-10 py-3 rounded-xl border ${
-                    errors.categoryId
-                      ? "border-red-300 bg-red-50/50"
-                      : "border-gray-200/60 bg-white/50"
-                  } backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#283583]/20 focus:border-[#283583] transition-all duration-200 appearance-none cursor-pointer font-medium`}
+                  className={`w-full pl-10 pr-10 py-3 rounded-xl border ${errors.categoryId
+                    ? "border-red-300 bg-red-50/50"
+                    : "border-gray-200/60 bg-white/50"
+                    } backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#283583]/20 focus:border-[#283583] transition-all duration-200 appearance-none cursor-pointer font-medium`}
                   style={{
-                    backgroundImage: formData.categoryId 
+                    backgroundImage: formData.categoryId
                       ? `linear-gradient(to right, ${selectedCategory?.color}10, transparent)`
-                      : 'none'
+                      : "none",
                   }}
                 >
                   <option value="">Selecione uma categoria</option>
@@ -507,21 +513,27 @@ export const PostForm: React.FC<PostFormProps> = ({
                     </option>
                   ))}
                 </select>
-                
-                {/* Indicador de cor da categoria selecionada */}
+
                 {formData.categoryId && selectedCategory && (
-                  <div 
+                  <div
                     className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full shadow-md border-2 border-white"
-                    style={{ 
-                      backgroundColor: selectedCategory.color 
-                    }}
+                    style={{ backgroundColor: selectedCategory.color }}
                   />
                 )}
-                
-                {/* Ícone dropdown customizado */}
+
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <svg
+                    className="w-5 h-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </div>
               </div>
@@ -530,16 +542,17 @@ export const PostForm: React.FC<PostFormProps> = ({
                   <CircleAlert className="h-6 w-6" /> {errors.categoryId}
                 </p>
               )}
-              
-              {/* Preview da categoria selecionada */}
+
               {formData.categoryId && selectedCategory && (
                 <div className="flex items-center gap-2 p-3 bg-white/50 rounded-lg border border-gray-200/60">
-                  <span className="text-xs text-gray-500 font-semibold">Pré-visualização:</span>
-                  <span 
+                  <span className="text-xs text-gray-500 font-semibold">
+                    Pré-visualização:
+                  </span>
+                  <span
                     className="inline-block px-3 py-1.5 text-xs font-black uppercase tracking-wide rounded-lg shadow-sm"
                     style={{
                       backgroundColor: selectedCategory.color,
-                      color: 'white'
+                      color: "white",
                     }}
                   >
                     {selectedCategory.name}
@@ -569,7 +582,10 @@ export const PostForm: React.FC<PostFormProps> = ({
                 >
                   {formData.published ? (
                     <span className="font-medium text-green-600">
-                      ✓ {mode === "create" ? "Publicar imediatamente" : "Publicado"}
+                      ✓{" "}
+                      {mode === "create"
+                        ? "Publicar imediatamente"
+                        : "Publicado"}
                     </span>
                   ) : (
                     <span className="text-gray-600">
@@ -594,15 +610,12 @@ export const PostForm: React.FC<PostFormProps> = ({
                 onClick={() => {
                   setImageInputMode("upload");
                   setFormData((prev) => ({ ...prev, photoUrl: null }));
-                  if (photoUrlRef.current) {
-                    photoUrlRef.current.value = "";
-                  }
+                  if (photoUrlRef.current) photoUrlRef.current.value = "";
                 }}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                  imageInputMode === "upload"
-                    ? "bg-[#283583] text-white shadow-md"
-                    : "bg-white/50 text-gray-600 border border-gray-200/60 hover:bg-gray-50"
-                }`}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${imageInputMode === "upload"
+                  ? "bg-[#283583] text-white shadow-md"
+                  : "bg-white/50 text-gray-600 border border-gray-200/60 hover:bg-gray-50"
+                  }`}
               >
                 <Upload className="w-4 h-4 inline-block mr-2" />
                 Upload
@@ -611,24 +624,31 @@ export const PostForm: React.FC<PostFormProps> = ({
                 type="button"
                 onClick={() => {
                   setImageInputMode("url");
-                  setFormData((prev) => ({ ...prev, photo: null }));
+                  setFormData((prev) => ({ ...prev, photoUrl: null }));
                   setPhotoPreview(null);
-                  if (fileInputRef.current) {
-                    fileInputRef.current.value = "";
-                  }
+                  if (fileInputRef.current) fileInputRef.current.value = "";
                 }}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                  imageInputMode === "url"
-                    ? "bg-[#283583] text-white shadow-md"
-                    : "bg-white/50 text-gray-600 border border-gray-200/60 hover:bg-gray-50"
-                }`}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${imageInputMode === "url"
+                  ? "bg-[#283583] text-white shadow-md"
+                  : "bg-white/50 text-gray-600 border border-gray-200/60 hover:bg-gray-50"
+                  }`}
               >
                 <LinkIcon className="w-4 h-4 inline-block mr-2" />
                 URL
               </button>
             </div>
 
-            {photoPreview ? (
+            {/* ✅ loading de upload */}
+            {isUploadingPhoto && (
+              <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-blue-200/60 bg-blue-50/50">
+                <Loader2 className="w-4 h-4 text-[#283583] animate-spin" />
+                <span className="text-sm text-[#283583] font-medium">
+                  Fazendo upload da imagem...
+                </span>
+              </div>
+            )}
+
+            {photoPreview && !isUploadingPhoto ? (
               <div className="relative rounded-xl overflow-hidden border border-gray-200/60 bg-white/50 backdrop-blur-sm">
                 <Image
                   src={photoPreview}
@@ -653,7 +673,7 @@ export const PostForm: React.FC<PostFormProps> = ({
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
-            ) : (
+            ) : !isUploadingPhoto ? (
               <>
                 {imageInputMode === "upload" ? (
                   <div
@@ -690,7 +710,7 @@ export const PostForm: React.FC<PostFormProps> = ({
                   </div>
                 )}
               </>
-            )}
+            ) : null}
 
             <input
               ref={fileInputRef}
@@ -718,7 +738,6 @@ export const PostForm: React.FC<PostFormProps> = ({
               ref={editorRef}
               content={formData.content}
               onChange={() => {
-                // Limpar erro se existir
                 if (errors.content) {
                   setErrors((prev) => ({ ...prev, content: "" }));
                 }
@@ -742,7 +761,7 @@ export const PostForm: React.FC<PostFormProps> = ({
           <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200/50">
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isUploadingPhoto}
               className="flex-1 bg-linear-to-r from-[#5FAD56] to-[#4a9144] hover:from-[#4a9144] hover:to-[#5FAD56] text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-green-500/25 hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save className="w-5 h-5" />
@@ -751,11 +770,10 @@ export const PostForm: React.FC<PostFormProps> = ({
             <button
               type="button"
               onClick={() => setShowPreview(!showPreview)}
-              className={`px-6 py-4 rounded-2xl font-semibold shadow-2xl transition-all duration-300 flex items-center justify-center gap-3 ${
-                showPreview
-                  ? "bg-linear-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white"
-                  : "bg-linear-to-r from-[#283583] to-[#3d4ba8] hover:from-[#1e2860] hover:to-[#283583] text-white"
-              } hover:scale-105 hover:shadow-3xl`}
+              className={`px-6 py-4 rounded-2xl font-semibold shadow-2xl transition-all duration-300 flex items-center justify-center gap-3 ${showPreview
+                ? "bg-linear-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white"
+                : "bg-linear-to-r from-[#283583] to-[#3d4ba8] hover:from-[#1e2860] hover:to-[#283583] text-white"
+                } hover:scale-105 hover:shadow-3xl`}
             >
               {showPreview ? (
                 <>
@@ -784,8 +802,7 @@ export const PostForm: React.FC<PostFormProps> = ({
       {/* Preview Modal */}
       {showPreview && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-111111111 flex items-center justify-center p-4 animate-fadeIn">
-          <div className=" rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden animate-slideUp">
-            {/* Modal Header */}
+          <div className="rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden animate-slideUp">
             <div className="bg-linear-to-r from-[#283583] to-[#3d4ba8] p-6 flex items-center justify-between">
               <div className="flex items-center gap-3 text-white">
                 <Eye className="w-6 h-6" />
@@ -799,11 +816,8 @@ export const PostForm: React.FC<PostFormProps> = ({
               </button>
             </div>
 
-            {/* Modal Content */}
             <div className="bg-white p-8 overflow-y-auto max-h-[calc(90vh-88px)]">
-              {/* Preview as Blog Post */}
               <article className="max-w-3xl mx-auto">
-                {/* Featured Image */}
                 {photoPreview && (
                   <div className="mb-8 rounded-2xl overflow-hidden shadow-lg">
                     <Image
@@ -816,14 +830,13 @@ export const PostForm: React.FC<PostFormProps> = ({
                   </div>
                 )}
 
-                {/* Category Badge */}
                 {formData.categoryId && selectedCategory && (
                   <div className="mb-4">
-                    <span 
+                    <span
                       className="inline-block px-5 py-2.5 text-sm font-black uppercase tracking-wider shadow-lg rounded-lg"
                       style={{
                         backgroundColor: selectedCategory.color,
-                        color: 'white'
+                        color: "white",
                       }}
                     >
                       {selectedCategory.name}
@@ -831,26 +844,22 @@ export const PostForm: React.FC<PostFormProps> = ({
                   </div>
                 )}
 
-                {/* Title */}
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
                   {titleRef.current?.value || "Sem título"}
                 </h1>
 
-                {/* Meta Info */}
                 <div className="flex items-center gap-4 mb-6 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
                     <span>{new Date().toLocaleDateString("pt-BR")}</span>
                   </div>
                   <div
-                    className={`flex items-center gap-2 ${
-                      formData.published ? "text-green-600" : "text-gray-500"
-                    }`}
+                    className={`flex items-center gap-2 ${formData.published ? "text-green-600" : "text-gray-500"
+                      }`}
                   >
                     <span
-                      className={`w-2 h-2 rounded-full ${
-                        formData.published ? "bg-green-500" : "bg-gray-400"
-                      }`}
+                      className={`w-2 h-2 rounded-full ${formData.published ? "bg-green-500" : "bg-gray-400"
+                        }`}
                     ></span>
                     <span className="font-medium">
                       {formData.published ? "Publicado" : "Rascunho"}
@@ -858,12 +867,10 @@ export const PostForm: React.FC<PostFormProps> = ({
                   </div>
                 </div>
 
-                {/* Description */}
                 <p className="text-xl text-gray-700 mb-8 leading-relaxed font-medium border-l-4 border-[#283583] pl-6 italic">
                   {descriptionRef.current?.value || "Sem descrição"}
                 </p>
 
-                {/* Tags */}
                 {formData.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-8">
                     {formData.tags.map((tag, index) => (
@@ -877,7 +884,6 @@ export const PostForm: React.FC<PostFormProps> = ({
                   </div>
                 )}
 
-                {/* Content */}
                 <div
                   className="prose prose-lg max-w-none"
                   dangerouslySetInnerHTML={{
@@ -892,7 +898,6 @@ export const PostForm: React.FC<PostFormProps> = ({
         </div>
       )}
 
-      {/* Password Confirmation Modal */}
       <PasswordModal
         isOpen={showPasswordModal}
         onConfirm={handlePasswordConfirm}
@@ -901,32 +906,15 @@ export const PostForm: React.FC<PostFormProps> = ({
 
       <style jsx>{`
         @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
-
         @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
-
-        .animate-slideUp {
-          animation: slideUp 0.3s ease-out;
-        }
+        .animate-fadeIn { animation: fadeIn 0.2s ease-out; }
+        .animate-slideUp { animation: slideUp 0.3s ease-out; }
       `}</style>
     </>
   );
