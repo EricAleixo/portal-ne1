@@ -24,7 +24,6 @@ export const EditPost: React.FC<EditPostProps> = ({
     title: post.title,
     description: post.description,
     tags: post.tags,
-    photo: null,
     photoUrl: post.photoUrl,
     categoryId: post.categoryId,
     content: post.content,
