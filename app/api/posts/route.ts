@@ -62,8 +62,8 @@ export async function POST(req: NextRequest) {
         tags: JSON.parse(String(formData.get("tags") || "[]")),
         categoryId: rawCategoryId ? Number(rawCategoryId) : undefined,
         published: publishedRaw === "true",
-        photoFile: formData.get("photoFile"),
-        //photoUrl: formData.get("photoUrl")
+        //photoFile: formData.get("photoFile"),
+        photoUrl: formData.get("photoUrl")
       });
     }
 
