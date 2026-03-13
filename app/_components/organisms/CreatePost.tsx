@@ -19,13 +19,16 @@ export const CreatePost: React.FC<CreatePostProps> = ({
 
   const handleSubmit = async (submitData: FormData, password: string) => {
     submitData.append("password", password);
-
     try {
       const post = await postService.create(submitData);
-      toast.success(`${post.title} postado com sucesso!`)
+      toast.success(`${post.title} postado com sucesso!`);
       setTimeout(() => router.push("/journalist/posts"), 1500);
-    } catch (error) {
-      toast.error("Senha inválida!");
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Erro ao criar post!";
+      toast.error(message);
       console.log(error);
       throw error;
     }
