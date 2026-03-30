@@ -80,7 +80,7 @@ export async function PUT(
       published: formData.get("published")
         ? formData.get("published") === "true"
         : undefined,
-      photoFile: formData.get("photoFile"),
+      photoUrl: formData.get("photoUrl") || undefined,
     });
 
     const { password } = passwordConfirmationSchema.parse({

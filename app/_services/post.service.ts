@@ -314,19 +314,30 @@ export class PostService {
       throw new Error("Post não encontrado");
     }
 
-    // valida permissão + senha usando o ID real
     await this.checkPermission(userId, post.id, password);
 
     let photoUrl = data.photoUrl;
 
-    // Se está enviando novo arquivo, fazer upload e deletar o antigo
+    // Upload de novo arquivo (caso ainda use photoFile em algum fluxo)
     if (data.photoFile) {
       photoUrl = await s3Storage.uploadPostImage(data.photoFile);
+    }
 
-      // Deletar imagem antiga do S3 se existir
-      if (post.photoUrl) {
-        await this.deleteS3ImageIfExists(post.photoUrl);
-      }
+    // ✅ Se chegou uma nova URL e é diferente da atual, deleta a antiga do S3
+    console.log(data)
+
+    if (
+      photoUrl &&
+      post.photoUrl &&
+      photoUrl !== post.photoUrl
+    ) {
+      await this.deleteS3ImageIfExists(post.photoUrl);
+    }
+
+    // ✅ Se photoUrl foi explicitamente removida (null/vazio), deleta a antiga
+    if (data.photoUrl === null && post.photoUrl) {
+      await this.deleteS3ImageIfExists(post.photoUrl);
+      photoUrl = undefined;
     }
 
     let newSlug: string | undefined;
