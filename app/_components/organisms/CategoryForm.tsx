@@ -1,4 +1,3 @@
-// app/_components/categorias/CategoryForm.tsx
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";

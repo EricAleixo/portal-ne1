@@ -1,4 +1,3 @@
-// app/_components/categorias/actions/ViewButton.tsx
 'use client'
 
 import { useRouter } from "next/navigation";

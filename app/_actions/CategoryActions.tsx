@@ -1,4 +1,3 @@
-// app/_components/categorias/CategoryActions.tsx
 'use client'
 
 import { DeleteButton } from "../_components/atoms/DeleteButton";

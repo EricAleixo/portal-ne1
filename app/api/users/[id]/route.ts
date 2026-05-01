@@ -4,7 +4,7 @@ import { userService } from '@/app/_services/user.service';
 interface RouteParams {
   params: Promise<{
     id: string;
-  }>; // FORÇADO como Promise
+  }>;
 }
 
 export async function GET(

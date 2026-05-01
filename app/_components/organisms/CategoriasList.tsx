@@ -1,4 +1,3 @@
-// app/_components/organisms/CategoriasList.tsx
 'use client';
 import { useState } from 'react';
 import { Tag, Plus } from 'lucide-react';

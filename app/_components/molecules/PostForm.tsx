@@ -37,7 +37,7 @@ export interface PostFormData {
   title: string;
   description: string;
   tags: string[];
-  photoUrl: string | null; // ✅ removido photo: File | null
+  photoUrl: string | null;
   categoryId: number | string;
   content: string;
   published: boolean;
@@ -49,7 +49,7 @@ const DEFAULT_FORM_DATA: PostFormData = {
   title: "",
   description: "",
   tags: [],
-  photoUrl: null, // ✅ removido photo: null
+  photoUrl: null,
   categoryId: "",
   content: "",
   published: true,
@@ -165,7 +165,6 @@ export const PostForm: React.FC<PostFormProps> = ({
     }));
   };
 
-  // ✅ handlePhotoChange agora faz upload imediato para /api/upload-image
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -280,7 +279,6 @@ export const PostForm: React.FC<PostFormProps> = ({
       newErrors.tags = "Adicione pelo menos uma tag";
     }
 
-    // ✅ bloqueia submit se ainda estiver fazendo upload
     if (isUploadingPhoto) {
       newErrors.photo = "Aguarde o upload da imagem terminar";
     }
@@ -301,7 +299,6 @@ export const PostForm: React.FC<PostFormProps> = ({
     submitData.append("categoryId", String(formData.categoryId));
     submitData.append("published", String(formData.published));
 
-    // ✅ sempre manda só a URL, nunca o arquivo
     if (formData.photoUrl) {
       submitData.append("photoUrl", formData.photoUrl);
     } else if (photoUrlRef.current?.value) {
@@ -638,7 +635,6 @@ export const PostForm: React.FC<PostFormProps> = ({
               </button>
             </div>
 
-            {/* ✅ loading de upload */}
             {isUploadingPhoto && (
               <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-blue-200/60 bg-blue-50/50">
                 <Loader2 className="w-4 h-4 text-[#283583] animate-spin" />

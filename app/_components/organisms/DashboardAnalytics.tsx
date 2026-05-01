@@ -96,7 +96,7 @@ export const DashboardAnalytics = ({ posts, total }: DashboardAnalyticsProps) =>
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top accent bar */}
-      <div className="h-1 w-full bg-gradient-to-r from-[#C4161C] via-[#283583] to-[#5FAD56]" />
+      <div className="h-1 w-full bg-linear-to-r from-[#C4161C] via-[#283583] to-[#5FAD56]" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
         {/* Header */}

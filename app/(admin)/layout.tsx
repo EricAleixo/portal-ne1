@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { JournalistLayout } from "../_components/layouts/JournalistLayout";
 import { getSessionOrThrow } from "../api/_utils/session";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 export default async function UserLayout({children}: {children: ReactNode}){
 

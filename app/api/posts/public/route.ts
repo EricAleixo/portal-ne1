@@ -1,4 +1,3 @@
-// app/api/posts/public/route.ts
 import { postService } from "@/app/_services/post.service";
 import { NextRequest, NextResponse } from "next/server";
 

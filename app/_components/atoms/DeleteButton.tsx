@@ -1,4 +1,3 @@
-// app/_components/categorias/actions/DeleteButton.tsx
 'use client'
 
 import { useState } from "react";

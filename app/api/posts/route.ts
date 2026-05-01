@@ -1,4 +1,3 @@
-// app/api/posts/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionOrThrow } from "../_utils/session";
 import { postService } from "@/app/_services/post.service";

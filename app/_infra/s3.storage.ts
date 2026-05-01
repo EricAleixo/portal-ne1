@@ -1,4 +1,3 @@
-// app/_infra/storage/s3.storage.ts
 import {
   S3Client,
   PutObjectCommand,

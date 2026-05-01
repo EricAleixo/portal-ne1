@@ -5,20 +5,18 @@ import { cookies } from "next/headers";
 export async function getSessionOrThrow() {
   const cookieStore = await cookies();
   
-  // Verifica se tem cookies de sessão antes
   const hasSessionCookie = 
     cookieStore.get("next-auth.session-token") || 
     cookieStore.get("__Secure-next-auth.session-token");
   
   if (!hasSessionCookie) {
-    return null; // Sem cookie = sem sessão
+    return null;
   }
   
   try {
     const session = await getServerSession(authOptions);
     return session;
   } catch (error) {
-    // Se der erro, limpa todos os cookies relacionados
     console.log("Limpando cookies inválidos...");
     
     const cookiesToDelete = [
